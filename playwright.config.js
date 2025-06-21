@@ -10,9 +10,12 @@ module.exports = defineConfig({
     expect: {
         timeout: 5000
     },
+    // Place test artifacts in test-results/artifacts
+    outputDir: 'test-results/artifacts',
     reporter: [
         ['list'],
-        ['json', { outputFile: 'test-results/playwright-report.json' }]
+        ['html', { outputFolder: 'test-results/html-report' }],
+        ['json', { outputFile: 'test-results/results.json' }]
     ],
     use: {
         headless: true,
@@ -22,6 +25,8 @@ module.exports = defineConfig({
         video: 'retain-on-failure',
         screenshot: 'only-on-failure',
         baseURL: 'https://artsenius.github.io/about',
+        // Store traces in test-results
+        trace: 'retain-on-failure'
     },
     projects: [
         {

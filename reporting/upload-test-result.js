@@ -1,22 +1,39 @@
 // upload-test-result.js
-// Usage: node reporting/upload-test-result.js <result-json-file>
-
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const API_URL = 'https://about-me-automation-backend.azurewebsites.net/api/test-runs';
+const DEFAULT_API_URL = 'https://about-me-automation-backend.azurewebsites.net/api/test-runs';
+const DEFAULT_FILE_PATH = 'test-results/playwright-report.json';
 
-async function uploadResult(resultPath) {
+// Parse command line arguments
+const args = process.argv.slice(2);
+let filePath = DEFAULT_FILE_PATH;
+let apiUrl = DEFAULT_API_URL;
+
+for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--file' && i + 1 < args.length) {
+        filePath = args[i + 1];
+        i++;
+    } else if (args[i] === '--api-url' && i + 1 < args.length) {
+        apiUrl = args[i + 1];
+        i++;
+    }
+}
+
+async function uploadResult(resultPath, apiEndpoint) {
+    if (!fs.existsSync(resultPath)) {
+        console.error(`Test result file not found: ${resultPath}`);
+        process.exit(1);
+    }
+
     try {
         const absPath = path.resolve(resultPath);
         const data = JSON.parse(fs.readFileSync(absPath, 'utf-8'));
-        // Remove display field before sending to backend
-        const { display, ...payload } = data;
 
-        console.log('Uploading test results:', JSON.stringify(payload, null, 2));
+        console.log(`Uploading test results to ${apiEndpoint}:`, JSON.stringify(data, null, 2));
 
-        const response = await axios.post(API_URL, payload, {
+        const response = await axios.post(apiEndpoint, data, {
             headers: { 'Content-Type': 'application/json' },
             timeout: 60000 // 60 seconds
         });
@@ -36,10 +53,7 @@ async function uploadResult(resultPath) {
 }
 
 if (require.main === module) {
-    const file = process.argv[2];
-    if (!file) {
-        console.error('Usage: node reporting/upload-test-result.js <result-json-file>');
-        process.exit(1);
-    }
-    uploadResult(file);
+    console.log(`Using test results file: ${filePath}`);
+    console.log(`Using API endpoint: ${apiUrl}`);
+    uploadResult(filePath, apiUrl);
 }

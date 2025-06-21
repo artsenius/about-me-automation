@@ -2,21 +2,37 @@
 const fs = require('fs');
 const path = require('path');
 
-// Default paths in test-results folder
-const defaultInputFile = path.join('test-results', 'results.json');
-const defaultOutputFile = path.join('test-results', 'playwright-report.json');
-
 // Parse command line arguments
 const args = process.argv.slice(2);
-const inputFile = args[0] || defaultInputFile;
-const outputFile = args[1] || defaultOutputFile;
+let inputFile = 'test-results/results.json';
+let outputFile = 'test-results/playwright-report.json';
+let projectName = 'Playwright';
+let forcedStatus = null;
 
-// Get optional parameters from command line
-const projectArg = args.indexOf('--project');
-const statusArg = args.indexOf('--status');
+// Parse named arguments first
+for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--project' && i + 1 < args.length) {
+        projectName = args[i + 1];
+        i++; // Skip next argument
+    } else if (args[i] === '--status' && i + 1 < args.length) {
+        forcedStatus = args[i + 1];
+        i++; // Skip next argument
+    } else if (!args[i].startsWith('--')) {
+        // If it's not a named argument, treat as positional
+        if (inputFile === 'test-results/results.json') {
+            inputFile = args[i];
+        } else if (outputFile === 'test-results/playwright-report.json') {
+            outputFile = args[i];
+        }
+    }
+}
 
-const projectName = projectArg !== -1 ? args[projectArg + 1] : 'About Me Website';
-const forcedStatus = statusArg !== -1 ? args[statusArg + 1] : null;
+if (!fs.existsSync(inputFile)) {
+    console.error(`Input file not found: ${inputFile}`);
+    console.error('Usage: node create-test-result-json.js [input-json] [output-json] [--project "Project Name"] [--status "status"]');
+    console.error('Defaults: input=test-results/results.json, output=test-results/playwright-report.json');
+    process.exit(1);
+}
 
 function getStatus(stats) {
     if (forcedStatus) return forcedStatus;

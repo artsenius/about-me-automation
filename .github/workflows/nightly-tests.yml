@@ -29,14 +29,12 @@ jobs:
       env:
         BASE_URL: 'https://artsenius.github.io/about-me'  # Production URL
       run: |
-        # Run tests with JSON reporter
-        npx playwright test --reporter=json,html
+        # Run tests with JSON and HTML reporters (configured in playwright.config.js)
+        npx playwright test
         
-        # Generate formatted JSON report using our custom script
+        # Generate formatted JSON report using our custom script (using default paths)
         node reporting/create-test-result-json.js \
-          playwright-report/results.json \
-          test-results/playwright-report.json \
-          --project "About Me Website" \
+          --project "Playwright" \
           --status "completed"
     
     - name: Upload test results to backend
@@ -61,7 +59,6 @@ jobs:
         name: test-results
         path: |
           test-results/
-          playwright-report/
         retention-days: 30
         compression-level: 9  # Maximum compression
         overwrite: true      # Override if exists
