@@ -1,53 +1,82 @@
 // create-test-result-json.js
-// Usage: node reporting/create-test-result-json.js <playwright-json-report> <output-json-file>
-
 const fs = require('fs');
 const path = require('path');
 
+// Parse command line arguments
+const args = process.argv.slice(2);
+const inputFile = args[0];
+const outputFile = args[1];
+
+// Get optional parameters from command line
+const projectArg = args.indexOf('--project');
+const statusArg = args.indexOf('--status');
+
+const projectName = projectArg !== -1 ? args[projectArg + 1] : 'About Me Website';
+const forcedStatus = statusArg !== -1 ? args[statusArg + 1] : null;
+
+if (!inputFile || !outputFile) {
+    console.error('Usage: node create-test-result-json.js <input-json> <output-json> [--project "Project Name"] [--status "status"]');
+    process.exit(1);
+}
+
 function getStatus(stats) {
+    if (forcedStatus) return forcedStatus;
     if (stats.failed > 0) return 'failed';
     return 'passed';
 }
 
 function formatDate(date) {
-    return date.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-    });
+    return date.toISOString();
 }
 
-function formatDuration(ms) {
-    const seconds = Math.floor(ms / 1000);
-    if (seconds < 60) {
-        return `${seconds} second${seconds !== 1 ? 's' : ''}`;
-    }
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes} minute${minutes > 1 ? 's' : ''} ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''}`;
-}
+function processTestResults(rawData) {
+    const startTime = new Date(rawData.stats.startTime);
+    const endTime = new Date(startTime.getTime() + rawData.stats.duration);
 
-function getTime(stats) {
-    const start = new Date(stats.startTime);
-    const end = new Date(start.getTime() + stats.duration);
     return {
-        startedAt: start, // Date object for MongoDB
-        finishedAt: end, // Date object for MongoDB
-        duration: stats.duration, // number in ms
-        display: { // for human readability
-            startedAt: formatDate(start),
-            finishedAt: formatDate(end),
-            duration: formatDuration(stats.duration)
+        project: projectName,
+        status: getStatus(rawData.stats),
+        startedAt: startTime,
+        finishedAt: endTime,
+        duration: rawData.stats.duration,
+        results: {
+            passed: rawData.stats.passed,
+            failed: rawData.stats.failed,
+            skipped: rawData.stats.skipped,
+            tests: rawData.suites.map(suite => ({
+                title: suite.title,
+                file: suite.file,
+                specs: suite.specs.map(spec => ({
+                    title: spec.title,
+                    ok: spec.ok,
+                    status: spec.ok ? 'passed' : 'failed',
+                    duration: spec.duration
+                }))
+            }))
         }
     };
 }
 
-function processSpecs(specs) {
-    return specs.map(spec => ({
+try {
+    // Read input file
+    const rawData = JSON.parse(fs.readFileSync(inputFile, 'utf8'));
+    
+    // Process the data
+    const formattedData = processTestResults(rawData);
+    
+    // Create output directory if it doesn't exist
+    const outputDir = path.dirname(outputFile);
+    if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+    }
+    
+    // Write the output file
+    fs.writeFileSync(outputFile, JSON.stringify(formattedData, null, 2));
+    console.log(`Test results successfully written to ${outputFile}`);
+} catch (error) {
+    console.error('Error processing test results:', error);
+    process.exit(1);
+}
         title: spec.title,
         tests: spec.tests.map(test => ({
             projectName: test.projectName,
