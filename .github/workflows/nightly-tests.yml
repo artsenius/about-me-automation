@@ -1,0 +1,56 @@
+name: Nightly E2E Tests
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs at 00:00 UTC every day
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
+    
+    - name: Run Playwright tests
+      env:
+        BASE_URL: 'https://artsenius.github.io/about-me'  # Production URL
+      run: npx playwright test
+    
+    - name: Upload test results to backend
+      if: always()  # Run this step even if tests fail
+      env:
+        API_URL: 'https://about-me-automation-backend.azurewebsites.net/api'
+      run: |
+        TEST_RESULTS_PATH="test-results/my-test-result.json"
+        if [ -f "$TEST_RESULTS_PATH" ]; then
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d @"$TEST_RESULTS_PATH" \
+            "$API_URL/test-runs"
+        else
+          echo "No test results file found"
+          exit 1
+        fi
+
+    - name: Upload test artifacts
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: |
+          test-results/
+          playwright-report/
+        retention-days: 30
