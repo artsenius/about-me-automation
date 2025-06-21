@@ -6,7 +6,8 @@ on:
   workflow_dispatch:  # Allows manual trigger from GitHub UI
 
 jobs:
-  test:
+  playwright_e2e_tests:
+    name: Playwright E2E Tests
     runs-on: ubuntu-latest
     
     steps:
@@ -28,23 +29,26 @@ jobs:
       env:
         BASE_URL: 'https://artsenius.github.io/about-me'  # Production URL
       run: |
-        # First run tests and generate the test results
-        npx playwright test
+        # Run tests with JSON reporter
+        npx playwright test --reporter=json,html
         
-        # Generate JSON report using our custom script
-        node reporting/create-test-result-json.js
+        # Generate formatted JSON report using our custom script
+        node reporting/create-test-result-json.js \
+          playwright-report/results.json \
+          test-results/playwright-report.json \
+          --project "About Me Website" \
+          --status "completed"
     
     - name: Upload test results to backend
       if: always()  # Run this step even if tests fail
       env:
         API_URL: 'https://about-me-automation-backend.azurewebsites.net/api'
       run: |
-        TEST_RESULTS_PATH="test-results/playwright-report.json"
-        if [ -f "$TEST_RESULTS_PATH" ]; then
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -d @"$TEST_RESULTS_PATH" \
-            "$API_URL/test-runs"
+        if [ -f "test-results/playwright-report.json" ]; then
+          # Use our existing upload script
+          node reporting/upload-test-result.js \
+            --file test-results/playwright-report.json \
+            --api-url "$API_URL/test-runs"
         else
           echo "No test results file found"
           exit 1
