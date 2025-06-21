@@ -33,26 +33,46 @@ function processTestResults(rawData) {
     const startTime = new Date(rawData.stats.startTime);
     const endTime = new Date(startTime.getTime() + rawData.stats.duration);
 
+    // Process all test results across suites
+    let passed = 0;
+    let failed = 0;
+    let skipped = 0;
+    const testResults = [];
+
+    rawData.suites.forEach(mainSuite => {
+        mainSuite.suites.forEach(suite => {
+            suite.specs.forEach(spec => {
+                spec.tests.forEach(test => {
+                    const result = test.results[0]; // Take first result
+                    if (result.status === 'passed') passed++;
+                    else if (result.status === 'failed') failed++;
+                    else if (result.status === 'skipped') skipped++;
+
+                    testResults.push({
+                        title: spec.title,
+                        suite: suite.title,
+                        file: mainSuite.file,
+                        browser: test.projectName,
+                        status: result.status,
+                        duration: result.duration,
+                        error: result.errors.length > 0 ? result.errors[0] : null
+                    });
+                });
+            });
+        });
+    });
+
     return {
         project: projectName,
-        status: getStatus(rawData.stats),
+        status: getStatus({ failed, passed, skipped }),
         startedAt: startTime,
         finishedAt: endTime,
         duration: rawData.stats.duration,
         results: {
-            passed: rawData.stats.passed,
-            failed: rawData.stats.failed,
-            skipped: rawData.stats.skipped,
-            tests: rawData.suites.map(suite => ({
-                title: suite.title,
-                file: suite.file,
-                specs: suite.specs.map(spec => ({
-                    title: spec.title,
-                    ok: spec.ok,
-                    status: spec.ok ? 'passed' : 'failed',
-                    duration: spec.duration
-                }))
-            }))
+            passed,
+            failed,
+            skipped,
+            tests: testResults
         }
     };
 }
