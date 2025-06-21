@@ -27,14 +27,19 @@ jobs:
     - name: Run Playwright tests
       env:
         BASE_URL: 'https://artsenius.github.io/about-me'  # Production URL
-      run: npx playwright test
+      run: |
+        # First run tests and generate the test results
+        npx playwright test
+        
+        # Generate JSON report using our custom script
+        node reporting/create-test-result-json.js
     
     - name: Upload test results to backend
       if: always()  # Run this step even if tests fail
       env:
         API_URL: 'https://about-me-automation-backend.azurewebsites.net/api'
       run: |
-        TEST_RESULTS_PATH="test-results/my-test-result.json"
+        TEST_RESULTS_PATH="test-results/playwright-report.json"
         if [ -f "$TEST_RESULTS_PATH" ]; then
           curl -X POST \
             -H "Content-Type: application/json" \
