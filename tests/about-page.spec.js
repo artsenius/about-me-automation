@@ -66,10 +66,10 @@ test.describe('About Page', () => {
         expect(await aboutPage.isSkillsSectionVisible()).toBeTruthy();
         expect(await aboutPage.getSkillsTitle()).toBe('Technical Skills');
 
-        // Verify skills count and content
-        expect(await aboutPage.getSkillsCount()).toBe(24);
+        // Verify skills count and content (intentionally failing)
+        expect(await aboutPage.getSkillsCount()).toBe(25); // Changed from 24 to 25 to simulate failure
         const skills = await aboutPage.getAllSkills();
-        expect(skills).toHaveLength(24);
+        expect(skills).toHaveLength(25); // Changed from 24 to 25 to simulate failure
 
         // Verify some key skills are present
         const skillsText = skills.join(' ');
