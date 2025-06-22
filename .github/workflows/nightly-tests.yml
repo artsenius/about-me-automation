@@ -27,14 +27,11 @@ jobs:
     
     - name: Run Playwright tests
       id: run_tests
-      continue-on-error: true  # Allow the workflow to continue even if tests fail
+      continue-on-error: true  # Allow workflow to continue for result upload
       env:
         BASE_URL: 'https://artsenius.github.io/about-me'  # Production URL
       run: |
-        # Run tests with JSON and HTML reporters
         npx playwright test || export TEST_EXIT_CODE=$?
-        
-        # Store test status for later steps
         echo "status=${TEST_EXIT_CODE:-0}" >> $GITHUB_OUTPUT
     
     - name: Generate test report
@@ -42,38 +39,34 @@ jobs:
       env:
         TEST_STATUS: ${{ steps.run_tests.outputs.status }}
       run: |
-        # Map exit code to status
         STATUS="passed"
         if [ "$TEST_STATUS" != "0" ]; then
           STATUS="failed"
         fi
-        
-        # Generate formatted JSON report (using default paths)
-        node reporting/create-test-result-json.js \
-          --project "Playwright" \
-          --status "$STATUS"
+        node reporting/create-test-result-json.js --status $STATUS
     
-    - name: Upload test results to backend
+    - name: Upload test results
       if: always()  # Run even if tests fail
       env:
-        API_URL: 'https://about-me-automation-backend.azurewebsites.net/api'
+        TEST_STATUS: ${{ steps.run_tests.outputs.status }}
       run: |
-        if [ -f "test-results/playwright-report.json" ]; then
-          node reporting/upload-test-result.js \
-            --api-url "$API_URL/test-runs"
-        else
-          echo "ERROR: No test results file found"
-          ls -la test-results/
-          exit 1
-        fi
-
+        node reporting/upload-test-result.js
+        
     - name: Upload test artifacts
-      if: always()
-      uses: actions/upload-artifact@v4
+      if: always()  # Run even if tests fail
+      uses: actions/upload-artifact@v3
       with:
         name: test-results
         path: |
           test-results/
-        retention-days: 30
-        compression-level: 9  # Maximum compression
-        overwrite: true      # Override if exists
+          playwright-report/
+          
+    - name: Check test status
+      if: always()  # Run as last step
+      env:
+        TEST_STATUS: ${{ steps.run_tests.outputs.status }}
+      run: |
+        if [ "$TEST_STATUS" != "0" ]; then
+          echo "Tests failed with exit code $TEST_STATUS"
+          exit 1
+        fi
