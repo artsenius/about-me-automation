@@ -54,34 +54,51 @@ function processTestResults(rawData) {
     let skipped = 0;
     const testResults = [];
 
+    // Track failed tests with details
+    const failedTests = [];
+
     rawData.suites.forEach(mainSuite => {
         mainSuite.suites.forEach(suite => {
             suite.specs.forEach(spec => {
                 spec.tests.forEach(test => {
                     const result = test.results[0]; // Take first result
-                    if (result.status === 'passed') passed++;
-                    else if (result.status === 'failed') failed++;
-                    else if (result.status === 'skipped') skipped++;
+                    const status = result.status === 'timedOut' ? 'failed' : result.status;
+
+                    if (status === 'passed') passed++;
+                    else if (status === 'failed') {
+                        failed++;
+                        failedTests.push({
+                            title: spec.title,
+                            suite: suite.title,
+                            file: mainSuite.file,
+                            error: result.errors[0]?.message || 'Unknown error'
+                        });
+                    }
+                    else if (status === 'skipped') skipped++;
 
                     testResults.push({
                         title: spec.title,
                         suite: suite.title,
                         file: mainSuite.file,
                         browser: test.projectName,
-                        status: result.status,
+                        status: status,
                         duration: result.duration,
-                        error: result.errors.length > 0 ? result.errors[0] : null
+                        error: result.errors.length > 0 ? {
+                            message: result.errors[0].message,
+                            stack: result.errors[0].stack
+                        } : null
                     });
                 });
             });
         });
     });
 
-    return {
+    // Include detailed failure information
+    const resultData = {
         project: projectName,
         status: getStatus({ failed, passed, skipped }),
-        startedAt: startTime,
-        finishedAt: endTime,
+        startedAt: formatDate(startTime),
+        finishedAt: formatDate(endTime),
         duration: rawData.stats.duration,
         results: {
             passed,
@@ -90,6 +107,12 @@ function processTestResults(rawData) {
             tests: testResults
         }
     };
+
+    if (failed > 0) {
+        resultData.failures = failedTests;
+    }
+
+    return resultData;
 }
 
 try {

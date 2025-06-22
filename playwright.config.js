@@ -18,13 +18,14 @@ module.exports = defineConfig({
         ['json', { outputFile: 'test-results/results.json' }]
     ],
     use: {
+        // Base URL for relative navigation
+        baseURL: 'https://artsenius.github.io/about',
         headless: true,
         viewport: { width: 1280, height: 720 },
         actionTimeout: 0,
         ignoreHTTPSErrors: true,
         video: 'retain-on-failure',
         screenshot: 'only-on-failure',
-        baseURL: 'https://artsenius.github.io/about',
         // Store traces in test-results
         trace: 'retain-on-failure'
     },
@@ -37,6 +38,7 @@ module.exports = defineConfig({
             name: 'Mobile Safari',
             use: {
                 ...devices['iPhone 15'],
+                viewport: { width: 390, height: 844 },
             },
         },
     ],

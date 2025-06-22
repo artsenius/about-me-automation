@@ -26,29 +26,44 @@ jobs:
       run: npx playwright install --with-deps
     
     - name: Run Playwright tests
+      id: run_tests
+      continue-on-error: true  # Allow the workflow to continue even if tests fail
       env:
         BASE_URL: 'https://artsenius.github.io/about-me'  # Production URL
       run: |
-        # Run tests with JSON and HTML reporters (configured in playwright.config.js)
-        npx playwright test
+        # Run tests with JSON and HTML reporters
+        npx playwright test || export TEST_EXIT_CODE=$?
         
-        # Generate formatted JSON report using our custom script (using default paths)
+        # Store test status for later steps
+        echo "status=${TEST_EXIT_CODE:-0}" >> $GITHUB_OUTPUT
+    
+    - name: Generate test report
+      if: always()  # Run even if tests fail
+      env:
+        TEST_STATUS: ${{ steps.run_tests.outputs.status }}
+      run: |
+        # Map exit code to status
+        STATUS="passed"
+        if [ "$TEST_STATUS" != "0" ]; then
+          STATUS="failed"
+        fi
+        
+        # Generate formatted JSON report (using default paths)
         node reporting/create-test-result-json.js \
           --project "Playwright" \
-          --status "completed"
+          --status "$STATUS"
     
     - name: Upload test results to backend
-      if: always()  # Run this step even if tests fail
+      if: always()  # Run even if tests fail
       env:
         API_URL: 'https://about-me-automation-backend.azurewebsites.net/api'
       run: |
         if [ -f "test-results/playwright-report.json" ]; then
-          # Use our existing upload script
           node reporting/upload-test-result.js \
-            --file test-results/playwright-report.json \
             --api-url "$API_URL/test-runs"
         else
-          echo "No test results file found"
+          echo "ERROR: No test results file found"
+          ls -la test-results/
           exit 1
         fi
 

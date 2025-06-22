@@ -27,27 +27,40 @@ async function uploadResult(resultPath, apiEndpoint) {
         process.exit(1);
     }
 
+    let data;
     try {
         const absPath = path.resolve(resultPath);
-        const data = JSON.parse(fs.readFileSync(absPath, 'utf-8'));
+        data = JSON.parse(fs.readFileSync(absPath, 'utf-8'));
+    } catch (err) {
+        console.error('Error reading/parsing test results:', err.message);
+        process.exit(1);
+    }
 
+    // Always upload results, regardless of pass/fail status
+    try {
         console.log(`Uploading test results to ${apiEndpoint}:`, JSON.stringify(data, null, 2));
 
         const response = await axios.post(apiEndpoint, data, {
             headers: { 'Content-Type': 'application/json' },
             timeout: 60000 // 60 seconds
         });
+
         console.log('Upload successful:', response.data);
-        return true;
+
+        // Exit with status 0 for successful upload, even if tests failed
+        // This allows the CI pipeline to continue while preserving test status
+        process.exit(0);
     } catch (err) {
+        console.error('Upload failed:');
         if (err.response) {
-            console.error('Upload failed:', err.response.data);
+            console.error('Server response:', err.response.data);
             console.error('Status:', err.response.status);
         } else if (err.request) {
             console.error('No response received:', err.message);
         } else {
             console.error('Error:', err.message);
         }
+        // Only exit with error if the upload itself failed
         process.exit(1);
     }
 }

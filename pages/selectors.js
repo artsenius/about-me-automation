@@ -1,32 +1,126 @@
-// selectors.js
-// Centralized selectors for all pages
+/**
+ * Centralized selectors for all pages
+ * Using React component data-testid attributes
+ */
 
 module.exports = {
-    about: {
-        navAbout: '[data-testid="nav-link-about"]',
-        navContact: '[data-testid="nav-link-contact"]',
-        headingAboutMe: 'role=heading[name="About Me"]',
-        headingArthurSenko: 'role=heading[name="Arthur Senko"]',
-        headingSeniorQALeader: '[data-testid="profile-position"]',
-        headingCurrentRole: 'role=heading[name="Current Role"]',
-        headingTechnicalSkills: 'role=heading[name="Technical Skills"]',
-        headingNotableAchievements: 'role=heading[name="Notable Achievements"]',
-        downloadResume: 'role=link[name="Download Resume"]',
-        photo: 'img[src*="art."]',
-        copyright: 'text=/© 2025 Arthur Senko/',
-        skillWebdriverIO: '[data-testid="skill-item-0"]',
-        skillCypress: '[data-testid="skill-item-1"]',
-        skillPlaywright: '[data-testid="skill-item-2"]',
-        skillSelenium: '[data-testid="skill-item-3"]',
-        skillAppium: '[data-testid="skill-item-4"]',
-        achievement1: '[data-testid="achievement-1"]',
-        achievement2: '[data-testid="achievement-2"]',
-        achievement3: '[data-testid="achievement-3"]',
-        achievement4: '[data-testid="achievement-4"]',
+    // Common selectors used across components
+    common: {
+        // Navigation
+        navigation: '[data-testid="header-nav"]',
+        navContainer: '[data-testid="nav-container"]',
+        navList: '[data-testid="nav-list"]',
+        navLinks: '[data-testid^="nav-link-"]',
+        navLinkAboutMe: '[data-testid="nav-link-about"]',
+        navLinkAboutApp: '[data-testid="nav-link-about-app"]',
+        navLinkLiveAutomation: '[data-testid="nav-link-automation"]',
+        navLinkContact: '[data-testid="nav-link-contact"]',
+
+        // Mobile menu elements
+        hamburgerMenu: '[data-testid="nav-menu-button"]',
+        mobileNavList: '[data-testid="nav-list"][data-mobile="true"]',
+
+        // Footer elements
+        footer: '[data-testid="footer"]',
+        copyright: '[data-testid="footer-copyright"]'
     },
-    contact: {
-        grid: '[data-testid="contact-grid"]',
-        headingGetInTouch: 'role=heading[name="Get In touch"]',
-        cards: '[data-testid="contact-grid"] [data-testid^="contact-card-"]',
-    }
+
+    about: {
+        // About Page elements
+        pageTitle: '[data-testid="about-title"]',
+        profileSection: '[data-testid="profile-section"]',
+        profileImage: '[data-testid="profile-image"]',
+        profileName: '[data-testid="profile-name"]',
+        resumeLink: '[data-testid="resume-link"]',
+        summary: '[data-testid="about-bio"]',
+
+        // Current Role Section
+        currentRoleSection: '[data-testid="current-role-section"]',
+        currentRoleTitle: '[data-testid="current-role-title"]',
+        allerganLink: 'a[href*="allerganaesthetics.com"]',
+        abbvieLink: 'a[href*="abbvie.com"]',
+
+        // Technical Skills Section
+        skillsSection: '[data-testid="skills-section"]',
+        skillsTitle: '[data-testid="skills-title"]',
+        skillsList: '[data-testid="skills-list"]',
+        skillItems: '[data-testid^="skill-"]',
+
+        // Achievements Section
+        achievementsSection: '[data-testid="achievements-section"]',
+        achievementsTitle: '[data-testid="achievements-title"]',
+        achievementsList: '[data-testid="achievements-list"]',
+        achievementItems: '[data-testid^="achievement-"]',
+    },
+
+    automation: {
+        // Page elements
+        title: '[data-testid="test-automation-title"]',
+        section: '[data-testid="test-automation-section"]',
+
+        // Test Run List
+        testRunList: '[data-testid="test-run-list"]',
+
+        // Test Run Card elements
+        testRunCard: '[data-testid^="test-run-card-"]',
+        testRunHeader: '[data-testid^="test-run-header-"]',
+        testRunContent: '[data-testid="test-run-content"]',
+
+        // Test Run Stats
+        testRunDuration: '[data-testid="test-run-duration"]',
+        testRunSuccessRate: '[data-testid="test-run-success-rate"]',
+        testRunPassedTests: '[data-testid="test-run-passed-tests"]',
+        testRunFailedTests: '[data-testid="test-run-failed-tests"]',
+        testRunSkippedTests: '[data-testid="test-run-skipped-tests"]',
+        testRunBlockedTests: '[data-testid="test-run-blocked-tests"]',
+        testDetails: '[data-testid^="test-details-"]',
+
+        // Loading state
+        loadingPlaceholder: '[data-testid="loading-placeholder"]'
+    }, contact: {
+        // Page Elements
+        heading: 'h1:has-text("Get in Touch")',
+
+        // Contact Cards
+        emailCard: '[data-testid="contact-card-email"]',
+        phoneCard: '[data-testid="contact-card-phone"]',
+        linkedInCard: '[data-testid="contact-card-linkedin"]',
+
+        // Email Elements
+        emailHeading: '[data-testid="contact-card-email"] h3:has-text("Email")',
+        emailLink: '[data-testid="contact-card-email"] a[href^="mailto:"]',
+        emailCopyButton: '[data-testid="contact-card-email"] button',
+        emailCopiedState: '[data-testid="copy-message-email"]',
+
+        // Phone Elements
+        phoneHeading: '[data-testid="contact-card-phone"] h3:has-text("Phone")',
+        phoneLink: '[data-testid="contact-card-phone"] a[href^="tel:"]',
+        phoneCopyButton: '[data-testid="contact-card-phone"] button',
+        phoneCopiedState: '[data-testid="copy-message-phone"]',
+
+        // LinkedIn Elements
+        linkedInHeading: '[data-testid="contact-card-linkedin"] h3:has-text("LinkedIn")',
+        linkedInLink: '[data-testid="contact-card-linkedin"] a[href*="linkedin.com"]',
+        linkedInCopyButton: '[data-testid="contact-card-linkedin"] button',
+        linkedInCopiedState: '[data-testid="copy-message-linkedin"]',
+    },
+
+    aboutApp: {
+        // Page Title and Intro
+        title: 'h1:has-text("About This App")',
+        intro: 'p:has-text("This portfolio website")',
+
+        // Component Sections
+        componentsSection: 'h2:has-text("Project Components")',
+        frontendSection: 'h3:has-text("Frontend Application")',
+        backendSection: 'h3:has-text("Backend Server")',
+        automationSection: 'h3:has-text("Test Automation Framework")',
+        liveResultsSection: 'h2:has-text("Live Test Results")',
+
+        // GitHub Links
+        frontendCodeLink: 'a:has-text("View Frontend Code")',
+        backendCodeLink: 'a:has-text("View Backend Code")',
+        automationCodeLink: 'a:has-text("View Automation Code")',
+        liveTestResultsLink: 'a:has-text("View Live Test Results")',
+    },
 };
