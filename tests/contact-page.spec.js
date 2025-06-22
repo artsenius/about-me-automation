@@ -14,7 +14,7 @@ test.describe('Contact Page', () => {
 
     test('should be accessible via header navigation', async () => {
         await header.navigateToContact();
-        await contactPage.verifyHeading();
+        await contactPage.verifyAllContactCards();
     });
 
     test('should display all contact cards', async () => {

@@ -5,11 +5,12 @@ class ContactPage extends BasePage {
     constructor(page) {
         super(page);
         this.selectors = selectors.contact;
+        this.commonSelectors = selectors.common;
     }
 
     // Core Elements
-    async verifyHeading() {
-        await this.expectToBeVisible(this.selectors.heading);
+    async getPageTitle() {
+        return await this.getText(this.commonSelectors.pageTitle);
     }
 
     // Contact Cards

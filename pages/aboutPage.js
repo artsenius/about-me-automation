@@ -5,17 +5,15 @@ class AboutPage extends BasePage {
     constructor(page) {
         super(page);
         this.selectors = selectors.about;
+        this.commonSelectors = selectors.common;
+    }
+
+    // Header Page Title
+    async getPageTitle() {
+        return await this.getText(this.commonSelectors.pageTitle);
     }
 
     // Core Profile Elements
-    async isTitleVisible() {
-        return await this.isVisible(this.selectors.pageTitle);
-    }
-
-    async getTitle() {
-        return await this.getText(this.selectors.pageTitle);
-    }
-
     async isProfileImageVisible() {
         return await this.isVisible(this.selectors.profileImage);
     }

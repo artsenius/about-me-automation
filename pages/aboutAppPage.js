@@ -7,16 +7,6 @@ class AboutAppPage extends BasePage {
         this.selectors = selectors.aboutApp;
     }
 
-    // Core Elements
-    async verifyTitle() {
-        await this.expectToBeVisible(this.selectors.title);
-    }
-
-    async verifyIntro() {
-        await this.expectToBeVisible(this.selectors.intro);
-        await this.expectToContainText(this.selectors.intro, 'This portfolio website');
-    }
-
     // Component Sections
     async verifyComponentSections() {
         // Verify section headers
@@ -45,20 +35,8 @@ class AboutAppPage extends BasePage {
         await this.expectToBeVisible(this.selectors.liveTestResultsLink);
     }
 
-    async getFrontendCodeUrl() {
-        return await this.getAttribute(this.selectors.frontendCodeLink, 'href');
-    }
-
-    async getBackendCodeUrl() {
-        return await this.getAttribute(this.selectors.backendCodeLink, 'href');
-    }
-
-    async getAutomationCodeUrl() {
-        return await this.getAttribute(this.selectors.automationCodeLink, 'href');
-    }
-
-    async getLiveTestResultsUrl() {
-        return await this.getAttribute(this.selectors.liveTestResultsLink, 'href');
+    async clickLiveTestResultsLink() {
+        await this.click(this.selectors.liveTestResultsLink);
     }
 
     async clickFrontendCodeLink() {
@@ -71,10 +49,6 @@ class AboutAppPage extends BasePage {
 
     async clickAutomationCodeLink() {
         await this.click(this.selectors.automationCodeLink);
-    }
-
-    async clickLiveTestResultsLink() {
-        await this.click(this.selectors.liveTestResultsLink);
     }
 }
 

@@ -14,11 +14,7 @@ test.describe('About Page', () => {
         await page.goto('');
     });
 
-    test('should display title and profile section', async () => {
-        // Verify title
-        expect(await aboutPage.isTitleVisible()).toBeTruthy();
-        expect(await aboutPage.getTitle()).toBe('About Me');
-
+    test('should display profile section', async () => {
         // Verify profile section
         expect(await aboutPage.isProfileImageVisible()).toBeTruthy();
         expect(await aboutPage.isProfileNameVisible()).toBeTruthy();

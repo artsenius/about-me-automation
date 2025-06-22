@@ -19,6 +19,7 @@ module.exports = {
         // Mobile menu elements
         hamburgerMenu: '[data-testid="nav-menu-button"]',
         mobileNavList: '[data-testid="nav-list"][data-mobile="true"]',
+        pageTitle: '[data-testid="page-title"]',
 
         // Footer elements
         footer: '[data-testid="footer"]',
@@ -27,7 +28,6 @@ module.exports = {
 
     about: {
         // About Page elements
-        pageTitle: '[data-testid="about-title"]',
         profileSection: '[data-testid="profile-section"]',
         profileImage: '[data-testid="profile-image"]',
         profileName: '[data-testid="profile-name"]',
@@ -55,7 +55,6 @@ module.exports = {
 
     automation: {
         // Page elements
-        title: '[data-testid="test-automation-title"]',
         section: '[data-testid="test-automation-section"]',
 
         // Test Run List
@@ -78,9 +77,6 @@ module.exports = {
         // Loading state
         loadingPlaceholder: '[data-testid="loading-placeholder"]'
     }, contact: {
-        // Page Elements
-        heading: 'h1:has-text("Get in Touch")',
-
         // Contact Cards
         emailCard: '[data-testid="contact-card-email"]',
         phoneCard: '[data-testid="contact-card-phone"]',
@@ -106,10 +102,6 @@ module.exports = {
     },
 
     aboutApp: {
-        // Page Title and Intro
-        title: 'h1:has-text("About This App")',
-        intro: 'p:has-text("This portfolio website")',
-
         // Component Sections
         componentsSection: 'h2:has-text("Project Components")',
         frontendSection: 'h3:has-text("Frontend Application")',

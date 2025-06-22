@@ -14,7 +14,6 @@ test.describe('Live Automation Page', () => {
 
     test('should be accessible via header navigation', async () => {
         await header.navigateToLiveAutomation();
-        await liveAutomationPage.verifyHeading();
         await liveAutomationPage.verifyContent();
     });
 

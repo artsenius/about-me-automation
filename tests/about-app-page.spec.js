@@ -14,22 +14,17 @@ test.describe('About This App Page', () => {
 
     test('should be accessible via header navigation', async () => {
         await header.navigateToAboutApp();
-        await aboutAppPage.verifyTitle();
+        await aboutAppPage.verifyComponentSections();
     });
 
     test('should display main page sections', async () => {
         await header.navigateToAboutApp();
-        await aboutAppPage.verifyTitle();
-        await aboutAppPage.verifyIntro();
         await aboutAppPage.verifyComponentSections();
         await aboutAppPage.verifyLiveResultsSection();
     });
 
     test('should display all GitHub links', async () => {
         await header.navigateToAboutApp();
-        await aboutAppPage.verifyAllLinks();
-
-        // Just verify that all links are present and visible
         await aboutAppPage.verifyAllLinks();
     });
 

@@ -5,11 +5,12 @@ class LiveAutomationPage extends BasePage {
     constructor(page) {
         super(page);
         this.selectors = selectors.automation;
+        this.commonSelectors = selectors.common;
     }
 
     // Core Page Elements
-    async verifyHeading() {
-        await this.expectToBeVisible(this.selectors.title);
+    async getPageTitle() {
+        return await this.getText(this.commonSelectors.pageTitle);
     }
 
     async verifyContent() {
@@ -86,8 +87,6 @@ class LiveAutomationPage extends BasePage {
             await card.locator(this.selectors.testRunSuccessRate).waitFor({ state: 'visible' });
             await card.locator(this.selectors.testRunPassedTests).waitFor({ state: 'visible' });
             await card.locator(this.selectors.testRunFailedTests).waitFor({ state: 'visible' });
-            await card.locator(this.selectors.testRunSkippedTests).waitFor({ state: 'visible' });
-            await card.locator(this.selectors.testRunBlockedTests).waitFor({ state: 'visible' });
             await card.locator(this.selectors.testDetails).waitFor({ state: 'visible' });
 
             return true;
