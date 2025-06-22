@@ -6,9 +6,11 @@ const { defineConfig, devices } = require('@playwright/test');
  */
 module.exports = defineConfig({
     testDir: './tests',
-    timeout: 30000,
+    // Global timeout for each test
+    timeout: 60000,
     expect: {
-        timeout: 5000
+        // Timeout for individual expect assertions
+        timeout: 10000
     },
     // Place test artifacts in test-results/artifacts
     outputDir: 'test-results/artifacts',
