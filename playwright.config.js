@@ -21,7 +21,7 @@ module.exports = defineConfig({
     ],
     use: {
         // Base URL for relative navigation
-        baseURL: 'https://artsenius.github.io/about',
+        baseURL: 'https://artsenius.github.io/about/',
         headless: true,
         viewport: { width: 1280, height: 720 },
         actionTimeout: 0,
