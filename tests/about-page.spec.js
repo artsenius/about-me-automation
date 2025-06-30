@@ -82,7 +82,7 @@ test.describe('About Page', () => {
 
         // Verify achievements count and content
         const achievements = await aboutPage.getAllAchievements();
-        expect(achievements).toHaveLength(4);
+        expect(achievements).toHaveLength(5);
 
         // Verify notable achievements content
         const achievementsText = achievements.join(' ');
