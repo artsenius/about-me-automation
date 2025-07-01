@@ -103,16 +103,16 @@ module.exports = {
 
     aboutApp: {
         // Component Sections
-        componentsSection: 'h2:has-text("Project Components")',
-        frontendSection: 'h3:has-text("Frontend Application")',
-        backendSection: 'h3:has-text("Backend Server")',
-        automationSection: 'h3:has-text("Test Automation Framework")',
-        liveResultsSection: 'h2:has-text("Live Test Results")',
+        componentsSection: '[data-testid="about-app-components"]',
+        frontendSection: '[data-testid="about-app-frontend"]',
+        backendSection: '[data-testid="about-app-backend"]',
+        automationSection: '[data-testid="about-app-automation-framework"]',
+        liveResultsSection: '[data-testid="about-app-live-test-results"]',
 
         // GitHub Links
-        frontendCodeLink: 'a:has-text("View Frontend Code")',
-        backendCodeLink: 'a:has-text("View Backend Code")',
-        automationCodeLink: 'a:has-text("View Automation Code")',
-        liveTestResultsLink: 'a:has-text("View Live Test Results")',
+        frontendCodeLink: '[data-testid="github-frontend-link"]',
+        backendCodeLink: '[data-testid="github-backend-link"]',
+        automationCodeLink: '[data-testid="about-app-automation-link"]',
+        liveTestResultsLink: '[data-testid="live-automation-link"]',
     },
 };

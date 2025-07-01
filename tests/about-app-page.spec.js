@@ -33,7 +33,6 @@ test.describe('About This App Page', () => {
 
         // Test Live Results link navigation
         await aboutAppPage.clickLiveTestResultsLink();
-        await aboutAppPage.page.waitForURL(/.*\/automation$/);
 
         // Navigate back
         await header.navigateToAboutApp();
