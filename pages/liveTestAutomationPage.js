@@ -8,11 +8,6 @@ class LiveTestAutomationPage extends BasePage {
         this.selectors = LIVE_AUTO_SELECTORS;
     }
 
-    // Navigation Methods
-    async navigateToPage() {
-        await this.navigate('https://artsenius.github.io/about/automation');
-    }
-
     // Verification Methods
     async verifyPageLoaded() {
         await this.expectToBeVisible(this.selectors.title);

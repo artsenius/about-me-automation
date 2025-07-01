@@ -31,7 +31,7 @@ jobs:
       id: run_tests
       continue-on-error: true  # Allow workflow to continue for result upload
       env:
-        BASE_URL: 'https://artsenius.github.io/about'  # Production URL
+        BASE_URL: 'https://www.arthursenko.com/'  # Production URL
       run: |
         npx playwright test || export TEST_EXIT_CODE=$?
         echo "status=${TEST_EXIT_CODE:-0}" >> $GITHUB_OUTPUT
