@@ -20,7 +20,6 @@ test.describe('About This App Page', () => {
     test('should display main page sections', async () => {
         await header.navigateToAboutApp();
         await aboutAppPage.verifyComponentSections();
-        await aboutAppPage.verifyLiveResultsSection();
     });
 
     test('should display all GitHub links', async () => {

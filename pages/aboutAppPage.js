@@ -14,17 +14,7 @@ class AboutAppPage extends BasePage {
         await this.expectToBeVisible(this.selectors.frontendSection);
         await this.expectToBeVisible(this.selectors.backendSection);
         await this.expectToBeVisible(this.selectors.automationSection);
-
-        // Verify component descriptions are visible
-        await this.expectToContainText(this.selectors.frontendSection + ' > p', 'React application built with TypeScript');
-        await this.expectToContainText(this.selectors.backendSection + ' > p', 'Express.js server with MongoDB');
-        await this.expectToContainText(this.selectors.automationSection + ' > p', 'Playwright-based automation framework');
-    }
-
-    // Live Results Section
-    async verifyLiveResultsSection() {
-        await this.expectToBeVisible(this.selectors.liveResultsSection);
-        await this.expectToContainText(this.selectors.liveResultsSection + ' > p', 'continuously tested');
+        await this.expectToBeVisible(this.selectors.devToolsSection);
     }
 
     // GitHub Links

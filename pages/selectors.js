@@ -50,7 +50,7 @@ module.exports = {
         achievementsSection: '[data-testid="achievements-section"]',
         achievementsTitle: '[data-testid="achievements-title"]',
         achievementsList: '[data-testid="achievements-list"]',
-        achievementItems: '[data-testid^="achievement-"]',
+        achievementItems: '[data-testid="achievements-list"] > li',
     },
 
     automation: {
@@ -104,10 +104,11 @@ module.exports = {
     aboutApp: {
         // Component Sections
         componentsSection: '[data-testid="about-app-components"]',
+        architectureSection: '[data-testid="about-app-architecture"]',
         frontendSection: '[data-testid="about-app-frontend"]',
         backendSection: '[data-testid="about-app-backend"]',
         automationSection: '[data-testid="about-app-automation-framework"]',
-        liveResultsSection: '[data-testid="about-app-live-test-results"]',
+        devToolsSection: '[data-testid="about-app-development-tools"]',
 
         // GitHub Links
         frontendCodeLink: '[data-testid="github-frontend-link"]',

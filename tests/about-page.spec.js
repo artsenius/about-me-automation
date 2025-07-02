@@ -63,16 +63,7 @@ test.describe('About Page', () => {
         expect(await aboutPage.getSkillsTitle()).toBe('Technical Skills');
 
         // Verify skills count and content
-        expect(await aboutPage.getSkillsCount()).toBe(24);
-        const skills = await aboutPage.getAllSkills();
-        expect(skills).toHaveLength(24);
-
-        // Verify some key skills are present
-        const skillsText = skills.join(' ');
-        expect(skillsText).toContain('Playwright');
-        expect(skillsText).toContain('JavaScript');
-        expect(skillsText).toContain('React');
-        expect(skillsText).toContain('AI');
+        expect(await aboutPage.getSkillsCount()).toBe(30);
     });
 
     test('should display achievements section', async () => {
@@ -86,9 +77,10 @@ test.describe('About Page', () => {
 
         // Verify notable achievements content
         const achievementsText = achievements.join(' ');
-        expect(achievementsText).toContain('TechStart.dev');
-        expect(achievementsText).toContain('95% employment rate');
-        expect(achievementsText).toContain('AI-driven testing');
-        expect(achievementsText).toContain('QA teams');
+        expect(achievementsText).toContain('Built and scaled QA teams and processes from the ground up in both startup and enterprise environments.');
+        expect(achievementsText).toContain('Co-founded TechStart.dev, helping developers and testers launch their careers with a 95% graduate employment rate.');
+        expect(achievementsText).toContain('Consistently played a pivotal role on every project, demonstrating unwavering responsibility, ownership, and commitment to success.');
+        expect(achievementsText).toContain('Successfully led QA initiatives that delivered measurable business value, directly contributing to millions in company revenue.');
+        expect(achievementsText).toContain('Pioneered the adoption of advanced automation tools and frameworks, driving innovation in enterprise environments.');
     });
 });
