@@ -40,12 +40,13 @@ jobs:
       if: always()  # Run even if tests fail
       env:
         TEST_STATUS: ${{ steps.run_tests.outputs.status }}
+        PROJECT_NAME: ${{ github.event_name == 'schedule' && 'Playwright Nightly Run' || github.event_name == 'repository_dispatch' && 'Playwright Deployment Validation' || 'Playwright Local Run' }}
       run: |
         STATUS="passed"
         if [ "$TEST_STATUS" != "0" ]; then
           STATUS="failed"
         fi
-        node reporting/create-test-result-json.js --status $STATUS
+        node reporting/create-test-result-json.js --status $STATUS --project "$PROJECT_NAME"
     
     - name: Upload test results
       if: always()  # Run even if tests fail

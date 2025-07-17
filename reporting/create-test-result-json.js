@@ -6,7 +6,7 @@ const path = require('path');
 const args = process.argv.slice(2);
 let inputFile = 'test-results/results.json';
 let outputFile = 'test-results/playwright-report.json';
-let projectName = 'Playwright';
+let projectName = process.env.PROJECT_NAME || 'Playwright Local Run';
 let forcedStatus = null;
 
 // Parse named arguments first
@@ -131,6 +131,7 @@ try {
     // Write the output file
     fs.writeFileSync(outputFile, JSON.stringify(formattedData, null, 2));
     console.log(`Test results successfully written to ${outputFile}`);
+    console.log(`Project name for report: ${projectName}`);
 } catch (error) {
     console.error('Error processing test results:', error);
     process.exit(1);
