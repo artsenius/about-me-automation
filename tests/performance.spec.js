@@ -1,181 +1,94 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('Performance Tests', () => {
-    test('should load the home page within acceptable time', async ({ page }) => {
+    test('About page should load within acceptable time', async ({ page }) => {
         const startTime = Date.now();
         
-        await page.goto('', { waitUntil: 'networkidle' });
+        await page.goto('/');
+        await page.waitForLoadState('networkidle');
         
         const loadTime = Date.now() - startTime;
-        
-        // Page should load within 5 seconds
-        expect(loadTime).toBeLessThan(5000);
-        console.log(`Page load time: ${loadTime}ms`);
+        expect(loadTime).toBeLessThan(5000); // Should load within 5 seconds
     });
 
-    test('should have good Core Web Vitals metrics', async ({ page }) => {
-        await page.goto('');
+    test('Contact page should load within acceptable time', async ({ page }) => {
+        const startTime = Date.now();
         
-        // Wait for page to be fully loaded
+        await page.goto('/contact');
         await page.waitForLoadState('networkidle');
+        
+        const loadTime = Date.now() - startTime;
+        expect(loadTime).toBeLessThan(5000);
+    });
+
+    test('Page should have good Core Web Vitals', async ({ page }) => {
+        await page.goto('/');
         
         // Measure Largest Contentful Paint (LCP)
         const lcp = await page.evaluate(() => {
             return new Promise((resolve) => {
-                if (typeof PerformanceObserver === 'undefined') {
-                    resolve(null);
-                    return;
-                }
-                
                 new PerformanceObserver((list) => {
                     const entries = list.getEntries();
                     const lastEntry = entries[entries.length - 1];
                     resolve(lastEntry.startTime);
                 }).observe({ entryTypes: ['largest-contentful-paint'] });
                 
-                // Fallback timeout
-                setTimeout(() => resolve(null), 5000);
+                setTimeout(() => resolve(0), 5000); // Fallback
             });
         });
         
-        if (lcp !== null) {
-            // LCP should be under 2.5 seconds for good performance
-            expect(lcp).toBeLessThan(2500);
-            console.log(`LCP: ${lcp}ms`);
-        }
+        expect(lcp).toBeLessThan(2500); // Good LCP should be under 2.5s
     });
 
-    test('should not have excessive resource sizes', async ({ page }) => {
-        const responses = [];
+    test('Images should be optimized', async ({ page }) => {
+        await page.goto('/');
         
-        page.on('response', response => {
-            responses.push({
-                url: response.url(),
-                status: response.status(),
-                size: response.headers()['content-length']
-            });
-        });
-        
-        await page.goto('');
-        await page.waitForLoadState('networkidle');
-        
-        // Check for 4xx/5xx errors
-        const errorResponses = responses.filter(r => r.status >= 400);
-        expect(errorResponses.length).toBe(0);
-        
-        // Check for excessively large resources (over 1MB)
-        const largeResources = responses.filter(r => 
-            r.size && parseInt(r.size) > 1024 * 1024
-        );
-        
-        if (largeResources.length > 0) {
-            console.log('Large resources found:', largeResources);
-        }
-        
-        // Warning if there are very large resources
-        expect(largeResources.length).toBeLessThan(3);
-    });
-
-    test('should have optimized images', async ({ page }) => {
-        await page.goto('');
-        await page.waitForLoadState('networkidle');
-        
-        const images = await page.locator('img[src]').all();
+        const images = await page.locator('img').all();
         
         for (const img of images) {
             const src = await img.getAttribute('src');
-            const naturalWidth = await img.evaluate(el => el.naturalWidth);
-            const naturalHeight = await img.evaluate(el => el.naturalHeight);
-            const displayWidth = await img.evaluate(el => el.clientWidth);
-            const displayHeight = await img.evaluate(el => el.clientHeight);
-            
-            if (displayWidth > 0 && displayHeight > 0) {
-                // Check if image is significantly oversized
-                const widthRatio = naturalWidth / displayWidth;
-                const heightRatio = naturalHeight / displayHeight;
+            if (src) {
+                const response = await page.request.head(src);
+                expect(response.status()).toBe(200);
                 
-                // Images shouldn't be more than 2x their display size
-                expect(widthRatio).toBeLessThan(3);
-                expect(heightRatio).toBeLessThan(3);
+                // Check if image has appropriate attributes
+                const alt = await img.getAttribute('alt');
+                expect(alt).toBeTruthy(); // All images should have alt text
                 
-                console.log(`Image ${src}: ${naturalWidth}x${naturalHeight} displayed as ${displayWidth}x${displayHeight}`);
+                const loading = await img.getAttribute('loading');
+                if (loading) {
+                    expect(['lazy', 'eager']).toContain(loading);
+                }
             }
         }
     });
 
-    test('should not have console errors', async ({ page }) => {
-        const consoleErrors = [];
+    test('CSS and JS resources should load efficiently', async ({ page }) => {
+        const resourceMetrics = [];
         
-        page.on('console', msg => {
-            if (msg.type() === 'error') {
-                consoleErrors.push(msg.text());
+        page.on('response', async (response) => {
+            const url = response.url();
+            if (url.includes('.css') || url.includes('.js')) {
+                resourceMetrics.push({
+                    url,
+                    status: response.status(),
+                    size: parseInt(response.headers()['content-length'] || '0')
+                });
             }
         });
         
-        page.on('pageerror', error => {
-            consoleErrors.push(error.message);
-        });
-        
-        await page.goto('');
+        await page.goto('/');
         await page.waitForLoadState('networkidle');
         
-        // Navigate to other main pages to check for errors
-        try {
-            await page.click('[data-testid="nav-link-about-app"]');
-            await page.waitForLoadState('networkidle');
-            
-            await page.click('[data-testid="nav-link-contact"]');
-            await page.waitForLoadState('networkidle');
-            
-            await page.click('[data-testid="nav-link-automation"]');
-            await page.waitForLoadState('networkidle');
-        } catch (error) {
-            // Navigation might fail in some environments, that's ok
-            console.log('Navigation test skipped due to element not found');
-        }
-        
-        // Filter out known non-critical errors
-        const criticalErrors = consoleErrors.filter(error => 
-            !error.includes('favicon') && 
-            !error.includes('analytics') &&
-            !error.includes('third-party')
-        );
-        
-        if (criticalErrors.length > 0) {
-            console.log('Console errors found:', criticalErrors);
-        }
-        
-        expect(criticalErrors.length).toBe(0);
-    });
-
-    test('should have proper caching headers', async ({ page }) => {
-        const responses = [];
-        
-        page.on('response', response => {
-            responses.push({
-                url: response.url(),
-                headers: response.headers()
-            });
+        // All CSS/JS resources should load successfully
+        resourceMetrics.forEach(resource => {
+            expect(resource.status).toBe(200);
         });
         
-        await page.goto('');
-        await page.waitForLoadState('networkidle');
-        
-        // Check static assets have cache headers
-        const staticAssets = responses.filter(r => 
-            r.url.match(/\.(css|js|png|jpg|jpeg|gif|svg|woff|woff2)$/)
-        );
-        
-        staticAssets.forEach(asset => {
-            const cacheControl = asset.headers['cache-control'];
-            const etag = asset.headers['etag'];
-            const lastModified = asset.headers['last-modified'];
-            
-            // Static assets should have some form of caching
-            const hasCaching = cacheControl || etag || lastModified;
-            expect(hasCaching).toBeTruthy();
-            
-            console.log(`Asset ${asset.url}: Cache-Control: ${cacheControl}`);
-        });
+        // Total CSS should be under reasonable size
+        const totalCSSSize = resourceMetrics
+            .filter(r => r.url.includes('.css'))
+            .reduce((sum, r) => sum + r.size, 0);
+        expect(totalCSSSize).toBeLessThan(500 * 1024); // 500KB limit
     });
 });

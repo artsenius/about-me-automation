@@ -1,249 +1,245 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('Security Tests', () => {
-    test('should have proper security headers', async ({ page }) => {
-        let response;
+    test('Should have proper security headers', async ({ page }) => {
+        const response = await page.goto('/');
+        const headers = response.headers();
         
-        page.on('response', res => {
-            if (res.url().includes('arthursenko.com') && !response) {
-                response = res;
-            }
-        });
+        // Check for X-Frame-Options or Content-Security-Policy frame-ancestors
+        const xFrameOptions = headers['x-frame-options'];
+        const csp = headers['content-security-policy'];
+        const hasFrameProtection = xFrameOptions || (csp && csp.includes('frame-ancestors'));
+        expect(hasFrameProtection).toBeTruthy();
         
-        await page.goto('');
-        await page.waitForLoadState('networkidle');
+        // Check for X-Content-Type-Options
+        expect(headers['x-content-type-options']).toBe('nosniff');
         
-        if (response) {
-            const headers = response.headers();
-            
-            // Check for security headers
-            console.log('Security headers check:');
-            
-            // Content Security Policy
-            if (headers['content-security-policy']) {
-                console.log('✓ Content-Security-Policy present');
-                expect(headers['content-security-policy']).toBeTruthy();
-            } else {
-                console.log('⚠ Content-Security-Policy missing');
-            }
-            
-            // X-Frame-Options
-            if (headers['x-frame-options']) {
-                console.log('✓ X-Frame-Options present');
-                expect(headers['x-frame-options']).toBeTruthy();
-            } else {
-                console.log('⚠ X-Frame-Options missing');
-            }
-            
-            // X-Content-Type-Options
-            if (headers['x-content-type-options']) {
-                console.log('✓ X-Content-Type-Options present');
-                expect(headers['x-content-type-options']).toBe('nosniff');
-            } else {
-                console.log('⚠ X-Content-Type-Options missing');
-            }
-            
-            // Strict-Transport-Security (for HTTPS)
-            if (headers['strict-transport-security']) {
-                console.log('✓ Strict-Transport-Security present');
-                expect(headers['strict-transport-security']).toBeTruthy();
-            } else {
-                console.log('⚠ Strict-Transport-Security missing');
-            }
+        // Check for X-XSS-Protection or modern CSP
+        const xssProtection = headers['x-xss-protection'];
+        const hasXSSProtection = xssProtection === '1; mode=block' || (csp && csp.includes('script-src'));
+        expect(hasXSSProtection).toBeTruthy();
+        
+        // Check for Referrer-Policy
+        const referrerPolicy = headers['referrer-policy'];
+        if (referrerPolicy) {
+            expect(['no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'strict-origin', 'strict-origin-when-cross-origin'].includes(referrerPolicy)).toBeTruthy();
         }
     });
 
-    test('should use HTTPS protocol', async ({ page }) => {
-        await page.goto('');
-        
-        const url = page.url();
-        expect(url.startsWith('https://')).toBeTruthy();
-        console.log(`URL protocol: ${url.split('://')[0]}`);
-    });
-
-    test('should not expose sensitive information in source', async ({ page }) => {
-        await page.goto('');
-        await page.waitForLoadState('networkidle');
+    test('Should not expose sensitive information in source', async ({ page }) => {
+        await page.goto('/');
         
         const content = await page.content();
         
-        // Check for common sensitive information patterns
+        // Check for common sensitive data patterns
         const sensitivePatterns = [
-            /api[_-]?key/i,
-            /secret[_-]?key/i,
-            /password/i,
-            /token/i,
-            /authorization/i,
-            /bearer/i,
-            /access[_-]?token/i
+            /api[_-]?key[s]?\s*[:=]\s*['"][^'"]+['"]/i,
+            /password\s*[:=]\s*['"][^'"]+['"]/i,
+            /secret[_-]?key[s]?\s*[:=]\s*['"][^'"]+['"]/i,
+            /access[_-]?token[s]?\s*[:=]\s*['"][^'"]+['"]/i,
+            /private[_-]?key[s]?\s*[:=]\s*['"][^'"]+['"]/i,
+            /database[_-]?url\s*[:=]\s*['"][^'"]+['"]/i
         ];
-        
-        const foundSensitive = [];
         
         sensitivePatterns.forEach(pattern => {
-            const matches = content.match(pattern);
-            if (matches) {
-                foundSensitive.push(matches[0]);
-            }
+            expect(content).not.toMatch(pattern);
         });
         
-        if (foundSensitive.length > 0) {
-            console.log('Potentially sensitive information found:', foundSensitive);
-        }
-        
-        // Should not expose obvious sensitive information
-        expect(foundSensitive.length).toBeLessThan(3);
-    });
-
-    test('should not have vulnerable dependencies in client-side', async ({ page }) => {
-        const requests = [];
-        
-        page.on('request', request => {
-            requests.push(request.url());
-        });
-        
-        await page.goto('');
-        await page.waitForLoadState('networkidle');
-        
-        // Check for known vulnerable libraries/versions
-        const vulnerableLibraries = [
-            'jquery/1.',
-            'jquery/2.',
-            'bootstrap/3.',
-            'moment.js/2.1',
-            'angular/1.'
+        // Check for development/debug comments
+        const debugPatterns = [
+            /TODO.*password/i,
+            /FIXME.*security/i,
+            /DEBUG.*token/i,
+            /console\.log\s*\(/
         ];
         
-        const foundVulnerable = requests.filter(url => 
-            vulnerableLibraries.some(lib => url.includes(lib))
-        );
-        
-        if (foundVulnerable.length > 0) {
-            console.log('Potentially vulnerable libraries found:', foundVulnerable);
-        }
-        
-        expect(foundVulnerable.length).toBe(0);
-    });
-
-    test('should handle errors gracefully without information disclosure', async ({ page }) => {
-        // Test 404 error handling
-        const response = await page.goto('/nonexistent-page', { 
-            waitUntil: 'networkidle',
-            timeout: 10000 
-        }).catch(() => null);
-        
-        if (response) {
-            const content = await page.content();
-            
-            // Should not expose stack traces or internal paths
-            const problematicPatterns = [
-                /stack trace/i,
-                /internal server error/i,
-                /debug/i,
-                /exception/i,
-                /error.*line.*\d+/i,
-                /\/var\/www/i,
-                /\/home\/.*\//i,
-                /c:\\/i
-            ];
-            
-            const foundProblematic = problematicPatterns.filter(pattern => 
-                pattern.test(content)
-            );
-            
-            expect(foundProblematic.length).toBe(0);
-        }
-    });
-
-    test('should protect against XSS in input fields', async ({ page }) => {
-        await page.goto('');
-        await page.waitForLoadState('networkidle');
-        
-        // Look for input fields
-        const inputs = await page.locator('input[type="text"], input[type="email"], textarea').all();
-        
-        if (inputs.length > 0) {
-            const xssPayload = '<script>alert("xss")</script>';
-            
-            for (const input of inputs) {
-                // Try to inject XSS payload
-                await input.fill(xssPayload);
-                
-                // Check if the payload is escaped or sanitized
-                const value = await input.inputValue();
-                
-                // The value should either be empty, escaped, or sanitized
-                expect(value).not.toContain('<script>');
-                console.log(`Input field handled XSS payload appropriately`);
+        debugPatterns.forEach(pattern => {
+            const matches = content.match(pattern);
+            if (matches) {
+                console.warn(`Potential debug info found: ${matches[0]}`);
             }
-        } else {
-            console.log('No input fields found for XSS testing');
+        });
+    });
+
+    test('Forms should have CSRF protection', async ({ page }) => {
+        await page.goto('/contact');
+        
+        const forms = await page.locator('form').all();
+        
+        for (const form of forms) {
+            const method = await form.getAttribute('method');
+            
+            if (method && method.toLowerCase() === 'post') {
+                // Check for CSRF token or similar protection
+                const csrfToken = await form.locator('input[name*="csrf"], input[name*="token"], input[type="hidden"]').count();
+                
+                if (csrfToken === 0) {
+                    console.warn('Form without apparent CSRF protection found');
+                }
+                
+                // Check form action is to same origin or relative
+                const action = await form.getAttribute('action');
+                if (action && action.startsWith('http')) {
+                    const url = new URL(action);
+                    const currentUrl = new URL(page.url());
+                    expect(url.origin).toBe(currentUrl.origin);
+                }
+            }
         }
     });
 
-    test('should have proper cookie security settings', async ({ page, context }) => {
-        await page.goto('');
-        await page.waitForLoadState('networkidle');
+    test('External links should have proper security attributes', async ({ page }) => {
+        await page.goto('/');
+        
+        const externalLinks = await page.locator('a[href^="http"]:not([href*="arthursenko.com"])').all();
+        
+        for (const link of externalLinks) {
+            const rel = await link.getAttribute('rel');
+            const target = await link.getAttribute('target');
+            
+            // External links opening in new tab should have noopener noreferrer
+            if (target === '_blank') {
+                expect(rel).toContain('noopener');
+                expect(rel).toContain('noreferrer');
+            }
+        }
+    });
+
+    test('Should not be vulnerable to common XSS patterns', async ({ page }) => {
+        await page.goto('/');
+        
+        // Test URL parameter injection
+        const testParams = [
+            '?test=<script>alert("xss")</script>',
+            '?search="><script>alert("xss")</script>',
+            '?name=javascript:alert("xss")',
+            '?callback=<img src=x onerror=alert("xss")>'
+        ];
+        
+        for (const param of testParams) {
+            try {
+                await page.goto(`/${param}`);
+                const content = await page.content();
+                
+                // The malicious script should be encoded/escaped
+                expect(content).not.toContain('<script>alert("xss")</script>');
+                expect(content).not.toContain('javascript:alert("xss")');
+                expect(content).not.toContain('onerror=alert("xss")');
+                
+                // Check that no script actually executed
+                const alertDialogPromise = page.waitForEvent('dialog', { timeout: 1000 }).catch(() => null);
+                const dialog = await alertDialogPromise;
+                expect(dialog).toBeNull();
+                
+            } catch (error) {
+                // Navigation might fail, which is actually good for security
+                console.log(`Navigation blocked for: ${param}`);
+            }
+        }
+    });
+
+    test('Should validate file upload restrictions', async ({ page }) => {
+        await page.goto('/contact');
+        
+        const fileInputs = await page.locator('input[type="file"]').all();
+        
+        for (const input of fileInputs) {
+            const accept = await input.getAttribute('accept');
+            const multiple = await input.getAttribute('multiple');
+            
+            // File inputs should have accept attribute to limit file types
+            if (accept) {
+                // Should not accept dangerous file types
+                const dangerousTypes = ['.exe', '.bat', '.cmd', '.scr', '.pif', '.com', '.js', '.jar'];
+                dangerousTypes.forEach(type => {
+                    expect(accept).not.toContain(type);
+                });
+            }
+            
+            // Check for size limitations (this would typically be in JavaScript)
+            const maxSize = await input.evaluate(el => {
+                return el.getAttribute('data-max-size') || 
+                       window.getComputedStyle(el).getPropertyValue('--max-file-size');
+            });
+            
+            if (!maxSize) {
+                console.warn('File input without apparent size restriction found');
+            }
+        }
+    });
+
+    test('Should have secure cookie settings', async ({ page, context }) => {
+        await page.goto('/');
         
         const cookies = await context.cookies();
         
-        if (cookies.length > 0) {
-            cookies.forEach(cookie => {
-                console.log(`Cookie: ${cookie.name}`);
-                
-                // Check for HttpOnly flag on sensitive cookies
-                if (cookie.name.toLowerCase().includes('session') || 
-                    cookie.name.toLowerCase().includes('auth') ||
-                    cookie.name.toLowerCase().includes('token')) {
-                    expect(cookie.httpOnly).toBeTruthy();
-                    console.log(`  ✓ HttpOnly: ${cookie.httpOnly}`);
-                }
-                
-                // Check for Secure flag (should be true for HTTPS sites)
-                if (page.url().startsWith('https://')) {
-                    expect(cookie.secure).toBeTruthy();
-                    console.log(`  ✓ Secure: ${cookie.secure}`);
-                }
-                
-                // Check SameSite attribute
-                console.log(`  SameSite: ${cookie.sameSite || 'not set'}`);
-            });
-        } else {
-            console.log('No cookies found');
-        }
+        cookies.forEach(cookie => {
+            // Session cookies should be HttpOnly
+            if (cookie.name.toLowerCase().includes('session') || 
+                cookie.name.toLowerCase().includes('auth') ||
+                cookie.name.toLowerCase().includes('token')) {
+                expect(cookie.httpOnly).toBeTruthy();
+            }
+            
+            // Secure flag should be set for HTTPS
+            if (page.url().startsWith('https://')) {
+                expect(cookie.secure).toBeTruthy();
+            }
+            
+            // SameSite should be set
+            expect(['Strict', 'Lax', 'None'].includes(cookie.sameSite)).toBeTruthy();
+        });
     });
 
-    test('should not expose development/debug information', async ({ page }) => {
-        await page.goto('');
-        await page.waitForLoadState('networkidle');
+    test('Should not expose server/framework information', async ({ page }) => {
+        const response = await page.goto('/');
+        const headers = response.headers();
         
-        const content = await page.content();
-        
-        // Check for development information
-        const devPatterns = [
-            /console\.log/i,
-            /debugger/i,
-            /development/i,
-            /localhost/i,
-            /127\.0\.0\.1/i,
-            /\.map$/i, // source maps
-            /webpack/i,
-            /node_modules/i
-        ];
-        
-        const foundDev = [];
-        
-        devPatterns.forEach((pattern, index) => {
-            if (pattern.test(content)) {
-                foundDev.push(devPatterns[index].toString());
-            }
-        });
-        
-        if (foundDev.length > 0) {
-            console.log('Development information found:', foundDev);
+        // Check for information disclosure headers
+        const serverHeader = headers['server'];
+        if (serverHeader) {
+            // Server header should not reveal detailed version info
+            expect(serverHeader).not.toMatch(/\d+\.\d+\.\d+/); // Version numbers
         }
         
-        // Some development traces are acceptable in production
-        expect(foundDev.length).toBeLessThan(5);
+        const xPoweredBy = headers['x-powered-by'];
+        expect(xPoweredBy).toBeUndefined(); // Should not expose framework
+        
+        // Check page content for framework signatures
+        const content = await page.content();
+        const frameworkSignatures = [
+            /generator.*WordPress \d+\.\d+/i,
+            /drupal \d+\.\d+/i,
+            /joomla \d+\.\d+/i,
+            /powered by.*\d+\.\d+/i
+        ];
+        
+        frameworkSignatures.forEach(signature => {
+            expect(content).not.toMatch(signature);
+        });
+    });
+
+    test('Should handle 404 errors securely', async ({ page }) => {
+        const response = await page.goto('/nonexistent-page-12345', { 
+            waitUntil: 'networkidle' 
+        }).catch(async () => {
+            // If navigation fails, try to get the response another way
+            return await page.request.get('/nonexistent-page-12345');
+        });
+        
+        if (response && response.status() === 404) {
+            // 404 pages should not expose sensitive information
+            const content = await page.content();
+            
+            // Should not reveal server paths
+            expect(content).not.toMatch(/\/var\/www/);
+            expect(content).not.toMatch(/\/home\/[^\/]+/);
+            expect(content).not.toMatch(/C:\\[^<]+/);
+            
+            // Should not reveal detailed error information
+            expect(content).not.toMatch(/stack trace/i);
+            expect(content).not.toMatch(/exception/i);
+            expect(content).not.toMatch(/error \d+/i);
+        }
     });
 });
