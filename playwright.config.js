@@ -36,11 +36,28 @@ module.exports = defineConfig({
             name: 'chromium',
             use: { ...{ browserName: 'chromium' } },
         },
+        // Commented out Mobile Safari for container environments
+        // Uncomment when running in environments with full browser support
+        /*
         {
             name: 'Mobile Safari',
             use: {
                 ...devices['iPhone 15'],
                 viewport: { width: 390, height: 844 },
+            },
+        },
+        */
+        // Add Firefox for additional browser coverage
+        {
+            name: 'firefox',
+            use: { ...{ browserName: 'firefox' } },
+        },
+        // Add desktop responsive tests
+        {
+            name: 'chromium-tablet',
+            use: { 
+                ...{ browserName: 'chromium' },
+                viewport: { width: 768, height: 1024 },
             },
         },
     ],

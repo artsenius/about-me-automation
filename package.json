@@ -5,7 +5,19 @@
   "main": "index.js",
   "scripts": {
     "test": "npx playwright test",
-    "start": "npx playwright test --ui"
+    "test:ui": "npx playwright test --ui",
+    "test:headed": "npx playwright test --headed",
+    "test:debug": "npx playwright test --debug",
+    "test:accessibility": "npx playwright test tests/accessibility.spec.js",
+    "test:performance": "npx playwright test tests/performance.spec.js",
+    "test:security": "npx playwright test tests/security.spec.js",
+    "test:visual": "npx playwright test tests/visual-regression.spec.js",
+    "test:core": "npx playwright test tests/about-page.spec.js tests/contact-page.spec.js tests/header.spec.js tests/footer.spec.js",
+    "test:full": "npm run test",
+    "test:chromium": "npx playwright test --project=chromium",
+    "test:mobile": "npx playwright test --project=\"Mobile Safari\"",
+    "report": "npx playwright show-report",
+    "install:browsers": "npx playwright install --with-deps"
   },
   "keywords": [],
   "author": "",
