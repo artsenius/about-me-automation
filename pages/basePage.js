@@ -27,10 +27,36 @@ class BasePage {
 
     // Element Actions
     async click(selector) {
-        await this.page.locator(selector).click();
-        // After clicking a navigation link, wait for navigation to complete
-        if (selector.includes('nav') || selector.includes('header')) {
-            await this.waitForNavigation();
+        try {
+            const locator = this.page.locator(selector);
+            const count = await locator.count();
+            
+            if (count === 0) {
+                throw new Error(`No elements found for selector: ${selector}`);
+            } else if (count === 1) {
+                await locator.click();
+            } else {
+                // Multiple elements found, click first visible one
+                const elements = await locator.all();
+                for (const element of elements) {
+                    try {
+                        if (await element.isVisible()) {
+                            await element.click();
+                            break;
+                        }
+                    } catch (e) {
+                        continue; // Try next element
+                    }
+                }
+            }
+            
+            // After clicking a navigation link, wait for navigation to complete
+            if (selector.includes('nav') || selector.includes('header')) {
+                await this.waitForNavigation();
+            }
+        } catch (error) {
+            console.log(`Error clicking selector "${selector}": ${error.message}`);
+            throw error;
         }
     }
 
@@ -48,11 +74,41 @@ class BasePage {
 
     // Element State Checks
     async isVisible(selector) {
-        return await this.page.locator(selector).isVisible();
+        try {
+            // Handle strict mode violations by using first() element
+            const locator = this.page.locator(selector);
+            const count = await locator.count();
+            
+            if (count === 0) {
+                return false;
+            } else if (count === 1) {
+                return await locator.isVisible();
+            } else {
+                // Multiple elements found, use first visible one
+                return await locator.first().isVisible();
+            }
+        } catch (error) {
+            console.log(`Error checking visibility for selector "${selector}": ${error.message}`);
+            return false;
+        }
     }
 
     async waitForVisible(selector) {
-        await this.page.locator(selector).waitFor({ state: 'visible' });
+        try {
+            const locator = this.page.locator(selector);
+            const count = await locator.count();
+            
+            if (count === 1) {
+                await locator.waitFor({ state: 'visible' });
+            } else if (count > 1) {
+                await locator.first().waitFor({ state: 'visible' });
+            } else {
+                throw new Error(`No elements found for selector: ${selector}`);
+            }
+        } catch (error) {
+            console.log(`Error waiting for visibility for selector "${selector}": ${error.message}`);
+            throw error;
+        }
     }
 
     async waitForNotVisible(selector) {
@@ -65,17 +121,45 @@ class BasePage {
 
     // Element Text and Content
     async getText(selector) {
-        const element = await this.page.locator(selector);
-        if (!await element.isVisible()) {
-            throw new Error(`Element with selector "${selector}" is not visible`);
+        try {
+            const locator = this.page.locator(selector);
+            const count = await locator.count();
+            
+            if (count === 0) {
+                return '';
+            } else if (count === 1) {
+                return await locator.textContent() || '';
+            } else {
+                // Multiple elements found, get text from first one
+                return await locator.first().textContent() || '';
+            }
+        } catch (error) {
+            console.log(`Error getting text for selector "${selector}": ${error.message}`);
+            return '';
         }
-        const text = await element.textContent();
-        return text ? text.trim() : '';
     }
 
     async getElementsText(selector) {
-        const elements = await this.page.locator(selector).all();
-        return Promise.all(elements.map(el => el.textContent()));
+        try {
+            const elements = await this.page.locator(selector).all();
+            const texts = [];
+            
+            for (const element of elements) {
+                try {
+                    const text = await element.textContent();
+                    if (text && text.trim()) {
+                        texts.push(text.trim());
+                    }
+                } catch (e) {
+                    // Skip elements that can't be accessed
+                }
+            }
+            
+            return texts;
+        } catch (error) {
+            console.log(`Error getting elements text for selector "${selector}": ${error.message}`);
+            return [];
+        }
     }
 
     async getElements(selector) {

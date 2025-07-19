@@ -1,42 +1,42 @@
 /**
  * CSS Selectors for automated testing
- * Updated to work with actual website structure instead of data-testid attributes
+ * Using data-testid attributes that exist on the website with fallbacks
  */
 module.exports = {
     // Common/Header Navigation Selectors
     common: {
-        navigation: 'nav, header nav, .nav, .navigation',
-        navContainer: 'nav, .navbar, .nav-container',
-        navList: 'nav ul, .nav-list, .navbar-nav',
-        navLinks: 'nav a, .nav-link, .navbar-nav a',
-        navLinkAboutMe: 'nav a[href*="about"]:not([href*="app"]), nav button:has-text("About Me"), [data-testid="nav-link-about"]',
-        navLinkAboutApp: 'nav a[href*="about"][href*="app"], nav button:has-text("About This App"), [data-testid="nav-link-about-app"]',
-        navLinkLiveAutomation: '[data-testid="nav-link-automation"]:not([href]), nav button:has-text("Live"), nav button[data-testid="nav-link-automation"]',
-        navLinkContact: 'nav a[href*="contact"], nav button:has-text("Contact"), [data-testid="nav-link-contact"]',
+        navigation: '[data-testid="header-nav"], nav, header nav, .nav, .navigation',
+        navContainer: '[data-testid="nav-container"], nav, .navbar, .nav-container',
+        navList: '[data-testid="nav-list"], nav ul, .nav-list, .navbar-nav',
+        navLinks: '[data-testid^="nav-link-"], nav a, nav button, .nav-link, .navbar-nav a, .navbar-nav button',
+        navLinkAboutMe: '[data-testid="nav-link-about"], nav button:has-text("About Me"), nav a[href*="about"]:not([href*="app"])',
+        navLinkAboutApp: '[data-testid="nav-link-about-app"], nav button:has-text("About This App"), nav a[href*="about"][href*="app"]',
+        navLinkLiveAutomation: '[data-testid="nav-link-automation"], nav button:has-text("Live Automation"), nav a[href*="automation"], nav a[href*="live"]',
+        navLinkContact: '[data-testid="nav-link-contact"], nav button:has-text("Contact"), nav a[href*="contact"]',
         
         // Mobile Navigation
-        hamburgerMenu: '.hamburger, .menu-toggle, button:has-text("Menu"), [aria-label*="menu"]',
-        mobileNavList: '.mobile-nav, .nav-mobile, nav.mobile',
-        pageTitle: 'h1, .page-title, .main-title'
+        hamburgerMenu: '[data-testid="nav-menu-button"], .hamburger, .menu-toggle, button:has-text("Menu")',
+        mobileNavList: '[data-testid="nav-list"][data-mobile="true"], .mobile-nav, .nav-mobile',
+        pageTitle: '[data-testid="page-title"], [data-testid="mobile-page-title"], h1, .page-title'
     },
 
     // Footer Selectors
     footer: {
-        footer: 'footer, .footer, .site-footer',
-        copyright: 'footer *:has-text("©"), .copyright, footer *:has-text("rights reserved")'
+        footer: '[data-testid="footer"], footer, .footer, .site-footer',
+        copyright: '[data-testid="footer-copyright"], footer *:has-text("©"), .copyright'
     },
 
     // About Page Selectors
     about: {
-        profileSection: '.profile, .about-section, .hero-section, section:has(img[alt*="Arthur"])',
-        profileImage: 'img[alt*="Arthur"], .profile-image, .headshot, .author-image, img[src*="profile"]',
-        profileName: 'h1:has-text("Arthur"), .profile-name, .author-name, h1, h2',
-        resumeLink: 'a[href*=".pdf"], a:has-text("Resume"), a:has-text("CV"), a[download]',
-        summary: '.summary, .bio, .about-text, .description, p:has-text("QA")',
+        profileSection: '[data-testid="profile-section"], .profile, .about-section, .hero-section',
+        profileImage: '[data-testid="profile-image"], img[alt*="Arthur"], .profile-image, .headshot',
+        profileName: '[data-testid="profile-name"]',
+        resumeLink: '[data-testid="resume-link"], a[href*=".pdf"], a:has-text("Resume"), a[download]',
+        summary: '[data-testid="about-bio"], .summary, .bio, .about-text, .description',
         
         // Current Role Section
-        currentRoleSection: 'section:has-text("Current Role"), .current-role, .role-section',
-        currentRoleTitle: 'h2:has-text("Current Role"), h3:has-text("Current Role"), .current-role h2, .current-role h3',
+        currentRoleSection: '[data-testid="current-role-section"], section:has-text("Current Role"), .current-role',
+        currentRoleTitle: '[data-testid="current-role-title"], h2:has-text("Current Role"), h3:has-text("Current Role")',
         currentRoleContent: '.current-role p, section:has-text("Current Role") p',
         
         // Company Links Section
@@ -44,81 +44,81 @@ module.exports = {
         companyLinks: 'a[href*="company"], .company-link, a[target="_blank"]:not([href*="linkedin"]):not([href*="github"])',
         
         // Skills Section
-        skillsSection: 'section:has-text("Skills"), .skills-section, .technical-skills',
-        skillsTitle: 'h2:has-text("Skills"), h3:has-text("Skills"), .skills-title',
-        skillsList: '.skills-list, .skills ul, .skill-items',
-        skillItems: '.skill, .skills li, .skill-item, .technology',
+        skillsSection: '[data-testid="skills-section"], section:has-text("Skills"), .skills-section',
+        skillsTitle: '[data-testid="skills-title"], h2:has-text("Skills"), h3:has-text("Skills")',
+        skillsList: '[data-testid="skills-list"], .skills-list, .skills ul, .skill-items',
+        skillItems: '[data-testid^="skill-"], .skill, .skills li, .skill-item',
         
         // Achievements Section
-        achievementsSection: 'section:has-text("Achievement"), .achievements, .accomplishments',
-        achievementsTitle: 'h2:has-text("Achievement"), h3:has-text("Achievement"), .achievements-title',
-        achievementsList: '.achievements ul, .accomplishments ul, .achievement-list',
-        achievementItems: '.achievements li, .accomplishments li, .achievement-item'
+        achievementsSection: '[data-testid="achievements-section"], section:has-text("Achievement"), .achievements',
+        achievementsTitle: '[data-testid="achievements-title"], h2:has-text("Achievement"), h3:has-text("Achievement")',
+        achievementsList: '[data-testid="achievements-list"], .achievements ul, .accomplishments ul',
+        achievementItems: '[data-testid="achievements-list"] > li, .achievements li, .accomplishments li'
     },
 
     // Live Automation Page Selectors
     liveAutomation: {
-        section: '.automation-section, .test-results, .live-automation',
+        section: '[data-testid="test-automation-section"], .automation-section, .test-results',
         pageContent: '.automation-content, .test-automation, main',
-        testRunList: '.test-runs, .test-results-list, .automation-results',
+        testRunList: '[data-testid="test-run-list"], .test-runs, .test-results-list',
         
         // Test Run Cards
-        testRunCard: '.test-run, .test-result-card, .automation-card',
-        testRunHeader: '.test-run-header, .test-result-header, .card-header',
-        testRunContent: '.test-run-content, .test-result-content, .card-body',
+        testRunCard: '[data-testid^="test-run-card-"], .test-run, .test-result-card',
+        testRunHeader: '[data-testid^="test-run-header-"], .test-run-header, .test-result-header',
+        testRunContent: '[data-testid="test-run-content"], .test-run-content, .test-result-content',
         
         // Test Run Details
-        testRunDuration: '.duration, .test-duration, .run-time',
-        testRunSuccessRate: '.success-rate, .pass-rate, .percentage',
-        testRunPassedTests: '.passed, .success, .passed-tests',
-        testRunFailedTests: '.failed, .error, .failed-tests',
-        testRunSkippedTests: '.skipped, .pending, .skipped-tests',
-        testRunBlockedTests: '.blocked, .disabled, .blocked-tests',
-        testDetails: '.test-details, .test-info, .result-details',
+        testRunDuration: '[data-testid="test-run-duration"], .duration, .test-duration',
+        testRunSuccessRate: '[data-testid="test-run-success-rate"], .success-rate, .pass-rate',
+        testRunPassedTests: '[data-testid="test-run-passed-tests"], .passed, .success',
+        testRunFailedTests: '[data-testid="test-run-failed-tests"], .failed, .error',
+        testRunSkippedTests: '[data-testid="test-run-skipped-tests"], .skipped, .pending',
+        testRunBlockedTests: '[data-testid="test-run-blocked-tests"], .blocked, .disabled',
+        testDetails: '[data-testid^="test-details-"], .test-details, .test-info',
         
         // Loading States
-        loadingPlaceholder: '.loading, .spinner, .placeholder'
+        loadingPlaceholder: '[data-testid="loading-placeholder"], .loading, .spinner'
     },
 
     // Contact Page Selectors
     contact: {
-        emailCard: '.contact-email, .email-contact, section:has-text("Email"), .contact-item:has(a[href^="mailto:"])',
-        phoneCard: '.contact-phone, .phone-contact, section:has-text("Phone"), .contact-item:has(a[href^="tel:"])',
-        linkedInCard: '.contact-linkedin, .linkedin-contact, section:has-text("LinkedIn"), .contact-item:has(a[href*="linkedin"])',
+        emailCard: '[data-testid="contact-card-email"], .contact-email, .email-contact',
+        phoneCard: '[data-testid="contact-card-phone"], .contact-phone, .phone-contact',
+        linkedInCard: '[data-testid="contact-card-linkedin"], .contact-linkedin, .linkedin-contact',
         
         // Email Elements
-        emailHeading: 'h3:has-text("Email"), h2:has-text("Email"), .email-heading',
-        emailLink: 'a[href^="mailto:"]',
-        emailCopyButton: '.email-card button, .contact-email button, button:near(a[href^="mailto:"])',
-        emailCopiedState: '.copied, .copy-success, .copy-confirmation',
+        emailHeading: '[data-testid="contact-card-email"] h3:has-text("Email"), h3:has-text("Email")',
+        emailLink: '[data-testid="contact-card-email"] a[href^="mailto:"], a[href^="mailto:"]',
+        emailCopyButton: '[data-testid="contact-card-email"] button, .email-card button',
+        emailCopiedState: '[data-testid="copy-message-email"], .copied, .copy-success',
         
         // Phone Elements
-        phoneHeading: 'h3:has-text("Phone"), h2:has-text("Phone"), .phone-heading',
-        phoneLink: 'a[href^="tel:"]',
-        phoneCopyButton: '.phone-card button, .contact-phone button, button:near(a[href^="tel:"])',
-        phoneCopiedState: '.copied, .copy-success, .copy-confirmation',
+        phoneHeading: '[data-testid="contact-card-phone"] h3:has-text("Phone"), h3:has-text("Phone")',
+        phoneLink: '[data-testid="contact-card-phone"] a[href^="tel:"], a[href^="tel:"]',
+        phoneCopyButton: '[data-testid="contact-card-phone"] button, .phone-card button',
+        phoneCopiedState: '[data-testid="copy-message-phone"], .copied, .copy-success',
         
         // LinkedIn Elements
-        linkedInHeading: 'h3:has-text("LinkedIn"), h2:has-text("LinkedIn"), .linkedin-heading',
-        linkedInLink: 'a[href*="linkedin.com"]',
-        linkedInCopyButton: '.linkedin-card button, .contact-linkedin button, button:near(a[href*="linkedin"])',
-        linkedInCopiedState: '.copied, .copy-success, .copy-confirmation'
+        linkedInHeading: '[data-testid="contact-card-linkedin"] h3:has-text("LinkedIn"), h3:has-text("LinkedIn")',
+        linkedInLink: '[data-testid="contact-card-linkedin"] a[href*="linkedin.com"], a[href*="linkedin.com"]',
+        linkedInCopyButton: '[data-testid="contact-card-linkedin"] button, .linkedin-card button',
+        linkedInCopiedState: '[data-testid="copy-message-linkedin"], .copied, .copy-success'
     },
 
     // About App Page Selectors
     aboutApp: {
         // Main Sections
-        componentsSection: 'section:has-text("Components"), .components-section',
-        architectureSection: 'section:has-text("Architecture"), .architecture-section', 
-        frontendSection: 'section:has-text("Frontend"), .frontend-section',
-        backendSection: 'section:has-text("Backend"), .backend-section',
-        automationSection: 'section:has-text("Automation"), .automation-section, section:has-text("Framework")',
-        devToolsSection: 'section:has-text("Tools"), .tools-section, section:has-text("Development")',
+        componentsSection: '[data-testid="about-app-components"], section:has-text("Components")',
+        architectureSection: '[data-testid="about-app-architecture"], section:has-text("Architecture")', 
+        frontendSection: '[data-testid="about-app-frontend"], section:has-text("Frontend")',
+        backendSection: '[data-testid="about-app-backend"], section:has-text("Backend")',
+        automationSection: '[data-testid="about-app-automation-framework"], section:has-text("Automation")',
+        devToolsSection: '[data-testid="about-app-development-tools"], section:has-text("Tools")',
         
         // External Links
-        frontendCodeLink: 'a[href*="github"][href*="frontend"], a:has-text("Frontend Code")',
-        backendCodeLink: 'a[href*="github"][href*="backend"], a:has-text("Backend Code")',
-        automationCodeLink: 'a[href*="github"][href*="automation"], a:has-text("Automation")',
-        liveTestResultsLink: 'a[href*="live"], a[href*="automation"], a:has-text("Live Results")'
+        frontendCodeLink: '[data-testid="github-frontend-link"], a[href*="github"][href*="frontend"]',
+        backendCodeLink: '[data-testid="github-backend-link"], a[href*="github"][href*="backend"]',
+        automationCodeLink: '[data-testid="about-app-automation-link"], a[href*="github"][href*="automation"]',
+        liveTestResultsLink: '[data-testid="live-automation-link"], a[href*="live"], a[href*="automation"]'
     }
 };
