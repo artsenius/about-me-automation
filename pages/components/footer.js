@@ -1,10 +1,10 @@
 const { BasePage } = require('../basePage');
-const { common } = require('../selectors');
+const selectors = require('../selectors');
 
 class Footer extends BasePage {
     constructor(page) {
         super(page);
-        this.selectors = common;
+        this.selectors = selectors.footer;
     }
 
     async isFooterVisible() {

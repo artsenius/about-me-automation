@@ -9,10 +9,10 @@ module.exports = {
         navContainer: 'nav, .navbar, .nav-container',
         navList: 'nav ul, .nav-list, .navbar-nav',
         navLinks: 'nav a, .nav-link, .navbar-nav a',
-        navLinkAboutMe: 'nav a[href*="about"]:not([href*="app"]), a:has-text("About Me")',
-        navLinkAboutApp: 'nav a[href*="about"][href*="app"], a:has-text("About This App")',
-        navLinkLiveAutomation: 'nav a[href*="automation"], nav a[href*="live"], a:has-text("Live")',
-        navLinkContact: 'nav a[href*="contact"], a:has-text("Contact")',
+        navLinkAboutMe: 'nav a[href*="about"]:not([href*="app"]), nav button:has-text("About Me"), [data-testid="nav-link-about"]',
+        navLinkAboutApp: 'nav a[href*="about"][href*="app"], nav button:has-text("About This App"), [data-testid="nav-link-about-app"]',
+        navLinkLiveAutomation: '[data-testid="nav-link-automation"]:not([href]), nav button:has-text("Live"), nav button[data-testid="nav-link-automation"]',
+        navLinkContact: 'nav a[href*="contact"], nav button:has-text("Contact"), [data-testid="nav-link-contact"]',
         
         // Mobile Navigation
         hamburgerMenu: '.hamburger, .menu-toggle, button:has-text("Menu"), [aria-label*="menu"]',

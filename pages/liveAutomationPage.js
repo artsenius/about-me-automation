@@ -4,7 +4,7 @@ const selectors = require('./selectors');
 class LiveAutomationPage extends BasePage {
     constructor(page) {
         super(page);
-        this.selectors = selectors.automation;
+        this.selectors = selectors.liveAutomation;
         this.commonSelectors = selectors.common;
     }
 
