@@ -5,6 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "test:functional": "npx playwright test tests/about-page.spec.js tests/about-app-page.spec.js tests/contact-page.spec.js tests/header.spec.js tests/footer.spec.js tests/live-test-automation.spec.js",
+    "test:accessibility": "npx playwright test tests/accessibility.spec.js",
+    "test:performance": "npx playwright test tests/performance.spec.js",
+    "test:security": "npx playwright test tests/security.spec.js",
+    "test:api": "npx playwright test tests/api.spec.js",
+    "test:chromium": "npx playwright test --project=chromium",
+    "test:mobile": "npx playwright test --project=\"Mobile Safari\"",
     "start": "npx playwright test --ui"
   },
   "keywords": [],
