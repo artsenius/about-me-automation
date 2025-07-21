@@ -31,12 +31,15 @@ module.exports = {
         profileSection: '[data-testid="profile-section"]',
         profileImage: '[data-testid="profile-image"]',
         profileName: '[data-testid="profile-name"]',
+        profilePosition: '[data-testid="profile-position"]',
         resumeLink: '[data-testid="resume-link"]',
         summary: '[data-testid="about-bio"]',
 
         // Current Role Section
         currentRoleSection: '[data-testid="current-role-section"]',
         currentRoleTitle: '[data-testid="current-role-title"]',
+        currentRoleCompany: '[data-testid="role-company"]',
+        currentRoleDuration: '[data-testid="role-duration"]',
         allerganLink: 'a[href*="allerganaesthetics.com"]',
         abbvieLink: 'a[href*="abbvie.com"]',
 
@@ -51,6 +54,10 @@ module.exports = {
         achievementsTitle: '[data-testid="achievements-title"]',
         achievementsList: '[data-testid="achievements-list"]',
         achievementItems: '[data-testid="achievements-list"] > li',
+        
+        // Additional elements
+        appInfoBox: '[data-testid="app-info-box"]',
+        backToTopButton: '[aria-label="Back to top"]',
     },
 
     automation: {

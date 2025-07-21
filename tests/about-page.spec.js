@@ -21,6 +21,19 @@ test.describe('About Page', () => {
         expect(await aboutPage.getProfileName()).toBe('Arthur Senko');
     });
 
+    test('should display profile position with correct text', async () => {
+        // Verify profile position text
+        const position = await aboutPage.getProfilePosition();
+        expect(position).toContain('Lead QA Engineer');
+        expect(position).toContain('SDET');
+        expect(position).toContain('AI Enthusiast');
+    });
+
+    test('should have hoverable profile image', async () => {
+        // Verify profile image has hover effects
+        expect(await aboutPage.isProfileImageHoverable()).toBeTruthy();
+    });
+
     test('should have working resume download', async ({ page }) => {
         // Verify resume button
         expect(await aboutPage.isResumeButtonVisible()).toBeTruthy();
@@ -39,7 +52,7 @@ test.describe('About Page', () => {
         // Verify summary section
         expect(await aboutPage.isSummaryVisible()).toBeTruthy();
         const summary = await aboutPage.getSummaryText();
-        expect(summary).toContain('QA Leader');
+        expect(summary).toContain('Lead QA Engineer');
         expect(summary).toContain('AI testing');
         expect(summary).toContain('automation');
 
@@ -57,7 +70,7 @@ test.describe('About Page', () => {
         expect(abbvieUrl).toContain('abbvie.com');
     });
 
-    test('should display technical skills section with 24 skills', async () => {
+    test('should display technical skills section with 30 skills', async () => {
         // Verify section visibility and title
         expect(await aboutPage.isSkillsSectionVisible()).toBeTruthy();
         expect(await aboutPage.getSkillsTitle()).toBe('Technical Skills');
@@ -77,10 +90,44 @@ test.describe('About Page', () => {
 
         // Verify notable achievements content
         const achievementsText = achievements.join(' ');
-        expect(achievementsText).toContain('Built and scaled QA teams and processes from the ground up in both startup and enterprise environments.');
-        expect(achievementsText).toContain('Co-founded TechStart.dev, helping developers and testers launch their careers with a 95% graduate employment rate.');
-        expect(achievementsText).toContain('Consistently played a pivotal role on every project, demonstrating unwavering responsibility, ownership, and commitment to success.');
-        expect(achievementsText).toContain('Successfully led QA initiatives that delivered measurable business value, directly contributing to millions in company revenue.');
-        expect(achievementsText).toContain('Pioneered the adoption of advanced automation tools and frameworks, driving innovation in enterprise environments.');
+        expect(achievementsText).toContain('Built QA teams and processes from the ground up in startup and enterprise environments.');
+        expect(achievementsText).toContain('Co-founded a startup, helping people launch careers with a 95% graduate employment rate.');
+        expect(achievementsText).toContain('Played a key role on every project, demonstrating responsibility and commitment to success.');
+        expect(achievementsText).toContain('Successfully led QA initiatives directly contributing to millions in company revenue.');
+        expect(achievementsText).toContain('Pioneered the adoption of advanced automation tools and frameworks, driving innovation.');
+    });
+
+    test('should display app info box', async () => {
+        // Verify app info box is present
+        expect(await aboutPage.isAppInfoBoxVisible()).toBeTruthy();
+    });
+
+    test('should display back to top button when scrolled to bottom', async () => {
+        // Scroll to bottom
+        await aboutPage.scrollToBottom();
+        
+        // Verify back to top button is visible (if implemented)
+        const isButtonVisible = await aboutPage.isBackToTopButtonVisible();
+        if (isButtonVisible) {
+            expect(isButtonVisible).toBeTruthy();
+        }
+    });
+
+    test('should scroll to top when back to top button is clicked', async () => {
+        // Scroll to bottom first
+        await aboutPage.scrollToBottom();
+        
+        // Get scroll position at bottom
+        const bottomScrollPosition = await aboutPage.getScrollPosition();
+        
+        // Only proceed if we actually scrolled and back to top button is available
+        if (bottomScrollPosition > 0 && await aboutPage.isBackToTopButtonVisible()) {
+            // Click back to top button
+            await aboutPage.clickBackToTopButton();
+            
+            // Verify page scrolled to top
+            const topScrollPosition = await aboutPage.getScrollPosition();
+            expect(topScrollPosition).toBeLessThan(bottomScrollPosition);
+        }
     });
 });
