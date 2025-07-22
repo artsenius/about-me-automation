@@ -10,15 +10,14 @@ class BasePage {
     }
 
     async waitForNavigation() {
-        // Wait for navigation and state to settle
+        // Wait for navigation and state to settle (optimized)
         await Promise.all([
             this.page.waitForLoadState('domcontentloaded'),
-            this.page.waitForLoadState('networkidle'),
             this.page.waitForLoadState('load')
         ]);
 
-        // Additional wait to ensure React state and animations are fully completed
-        await this.page.waitForTimeout(1000);
+        // Reduced wait for React state and animations
+        await this.page.waitForTimeout(300);
     }
 
     async getCurrentUrl() {

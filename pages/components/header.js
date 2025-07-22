@@ -31,11 +31,10 @@ class Header extends BasePage {
             // Open menu if not already open
             if (!await this.isVisible(this.selectors.navList)) {
                 await this.click(this.selectors.hamburgerMenu);
-                // Wait for the animation and menu to be fully visible
-                await this.waitForTimeout(500);
+                // Wait for the menu to be fully visible (reduced timeout)
                 await this.waitForVisible(this.selectors.navList);
-                // Additional wait for animation
-                await this.waitForTimeout(500);
+                // Minimal wait for animation
+                await this.waitForTimeout(200);
             }
         }
     }
@@ -45,8 +44,7 @@ class Header extends BasePage {
             // Close menu if open
             if (await this.isVisible(this.selectors.navList)) {
                 await this.click(this.selectors.hamburgerMenu);
-                // Wait for the animation and menu to be hidden
-                await this.waitForTimeout(500);
+                // Wait for the menu to be hidden (reduced timeout)
                 await this.waitForNotVisible(this.selectors.navList);
             }
         }
@@ -97,80 +95,32 @@ class Header extends BasePage {
         return color === 'rgb(52, 152, 219)';
     }
 
-    // Navigation Actions
+    // Navigation Actions - Optimized with reduced waiting
     async navigateToAboutMe() {
-        if (await this.isHamburgerMenuVisible()) {
-            await this.openHamburgerMenu();
-            // On mobile, wait after menu opens before clicking
-            await this.waitForTimeout(500);
-        }
-
-        await Promise.all([
-            this.waitForNavigation(),
-            this.click(this.selectors.navLinkAboutMe)
-        ]);
-
-        // Close menu after navigation on mobile
-        if (await this.isHamburgerMenuVisible()) {
-            await this.closeHamburgerMenu();
-        }
+        await this.prepareForNavigation();
+        await this.click(this.selectors.navLinkAboutMe);
+        await this.closeMenuAfterNavigation();
     }
 
     async navigateToAboutApp() {
-        if (await this.isHamburgerMenuVisible()) {
-            await this.openHamburgerMenu();
-            // On mobile, wait after menu opens before clicking
-            await this.waitForTimeout(500);
-        }
-
-        await Promise.all([
-            this.waitForNavigation(),
-            this.click(this.selectors.navLinkAboutApp)
-        ]);
-
-        // Close menu after navigation on mobile
-        if (await this.isHamburgerMenuVisible()) {
-            await this.closeHamburgerMenu();
-        }
+        await this.prepareForNavigation();
+        await this.click(this.selectors.navLinkAboutApp);
+        await this.closeMenuAfterNavigation();
     }
 
     async navigateToLiveAutomation() {
-        if (await this.isHamburgerMenuVisible()) {
-            await this.openHamburgerMenu();
-            // On mobile, wait after menu opens before clicking
-            await this.waitForTimeout(500);
-        }
-
-        await Promise.all([
-            this.waitForNavigation(),
-            this.click(this.selectors.navLinkLiveAutomation)
-        ]);
-
-        // Close menu after navigation on mobile
-        if (await this.isHamburgerMenuVisible()) {
-            await this.closeHamburgerMenu();
-        }
+        await this.prepareForNavigation();
+        await this.click(this.selectors.navLinkLiveAutomation);
+        await this.closeMenuAfterNavigation();
     }
 
     async navigateToContact() {
-        if (await this.isHamburgerMenuVisible()) {
-            await this.openHamburgerMenu();
-            // On mobile, wait after menu opens before clicking
-            await this.waitForTimeout(500);
-        }
-
-        await Promise.all([
-            this.waitForNavigation(),
-            this.click(this.selectors.navLinkContact)
-        ]);
-
-        // Close menu after navigation on mobile
-        if (await this.isHamburgerMenuVisible()) {
-            await this.closeHamburgerMenu();
-        }
+        await this.prepareForNavigation();
+        await this.click(this.selectors.navLinkContact);
+        await this.closeMenuAfterNavigation();
     }
 
-    // Navigation Methods
+    // Navigation Methods - Optimized helper
     async prepareForNavigation() {
         // If hamburger menu is visible, make sure it's open before navigating
         if (await this.isHamburgerMenuVisible()) {
@@ -178,24 +128,11 @@ class Header extends BasePage {
         }
     }
 
-    async navigateToAboutMe() {
-        await this.prepareForNavigation();
-        await this.click(this.selectors.navLinkAboutMe);
-    }
-
-    async navigateToAboutApp() {
-        await this.prepareForNavigation();
-        await this.click(this.selectors.navLinkAboutApp);
-    }
-
-    async navigateToLiveAutomation() {
-        await this.prepareForNavigation();
-        await this.click(this.selectors.navLinkLiveAutomation);
-    }
-
-    async navigateToContact() {
-        await this.prepareForNavigation();
-        await this.click(this.selectors.navLinkContact);
+    async closeMenuAfterNavigation() {
+        // Close menu after navigation on mobile
+        if (await this.isHamburgerMenuVisible()) {
+            await this.closeHamburgerMenu();
+        }
     }
 
     // Helper methods

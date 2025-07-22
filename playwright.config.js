@@ -37,11 +37,17 @@ module.exports = defineConfig({
             use: { ...{ browserName: 'chromium' } },
         },
         {
-            name: 'Mobile Safari',
-            use: {
-                ...devices['iPhone 15'],
-                viewport: { width: 390, height: 844 },
-            },
+            name: 'firefox',
+            use: { ...{ browserName: 'firefox' } },
         },
+        // Note: Mobile Safari (WebKit) disabled due to missing system dependencies in containerized environment
+        // To enable, install required WebKit dependencies or run in a different environment
+        // {
+        //     name: 'Mobile Safari',
+        //     use: {
+        //         ...devices['iPhone 15'],
+        //         viewport: { width: 390, height: 844 },
+        //     },
+        // },
     ],
 });
