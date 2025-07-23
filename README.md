@@ -1,179 +1,281 @@
-# About Me Website - Test Automation Framework
+# About Me Automation - Comprehensive Test Suite
 
-This repository contains the end-to-end test automation framework for the About Me website using Playwright. The framework is designed to run automated tests across multiple browsers and device configurations.
+A robust Playwright-based test automation framework for arthursenko.com, featuring accessibility, performance, resilience, and cross-browser testing.
 
-## Overview
+## 🚀 Features
 
-The framework provides comprehensive testing for:
-- About Me page functionality
-- About This App page features
-- Live Test Automation dashboard
-- Contact page functionality
-- Header navigation
-- Footer consistency
-- Mobile responsiveness
-- Cross-browser compatibility
+- **Comprehensive Test Coverage**: Smoke tests, functional tests, accessibility tests, performance tests, and resilience tests
+- **Cross-Browser Testing**: Chromium (Desktop) and Mobile Safari support
+- **Page Object Model**: Clean, maintainable test architecture
+- **CI/CD Integration**: GitHub Actions workflow with automated testing
+- **Detailed Reporting**: HTML reports, JUnit XML, and JSON output
+- **Performance Monitoring**: Load time analysis, resource usage tracking, memory leak detection
+- **Accessibility Testing**: WCAG compliance checks, keyboard navigation, screen reader support
+- **Resilience Testing**: Error handling, network failures, graceful degradation
 
-## Project Structure
+## 📋 Test Structure
 
 ```
-├── pages/              # Page Object Models
-│   ├── components/     # Shared Components
-│   │   ├── header.js
-│   │   └── footer.js
-│   ├── aboutPage.js
-│   ├── aboutAppPage.js
-│   ├── basePage.js
-│   ├── contactPage.js
-│   ├── liveAutomationPage.js
-│   └── selectors.js
-├── tests/             # Test Specifications
-│   ├── about-page.spec.js
-│   ├── about-app-page.spec.js
-│   ├── contact-page.spec.js
-│   ├── live-test-automation.spec.js
-│   ├── header.spec.js
-│   └── footer.spec.js
-├── reporting/         # Test Results Processing
-│   ├── create-test-result-json.js
-│   ├── upload-test-result.js
-│   └── README.md
-├── test-results/     # Test Artifacts
-│   ├── results.json
-│   └── playwright-report.json
-└── playwright.config.js
+tests/
+├── smoke.spec.js           # Fast health checks
+├── about-page.spec.js      # About page functionality
+├── contact-page.spec.js    # Contact page features
+├── header.spec.js          # Navigation testing
+├── footer.spec.js          # Footer component tests
+├── accessibility.spec.js   # WCAG compliance tests
+├── performance.spec.js     # Performance monitoring
+├── resilience.spec.js      # Error handling & graceful degradation
+└── live-test-automation.spec.js # Live automation features
+
+pages/
+├── basePage.js            # Base page object with common methods
+├── aboutPage.js           # About page object
+├── contactPage.js         # Contact page object
+├── selectors.js           # Centralized selectors
+└── components/
+    ├── header.js          # Header component object
+    └── footer.js          # Footer component object
 ```
 
-## Prerequisites
+## 🛠 Installation
 
-- Node.js 16 or higher
-- npm or yarn package manager
-- Access to test environments
+### Prerequisites
+- Node.js 16.0.0 or higher
+- npm or yarn
 
-## Setup
-
-1. Clone the repository:
+### Setup
 ```bash
-git clone git@github.com:artsenius/about-me-automation.git
+# Clone the repository
+git clone [repository-url]
 cd about-me-automation
-```
 
-2. Install dependencies:
-```bash
+# Install dependencies
 npm install
+
+# Install Playwright browsers
+npm run install:browsers
+
+# Install system dependencies (Linux)
+npm run install:deps
 ```
 
-3. Install Playwright browsers:
+## 🧪 Running Tests
+
+### Quick Start
 ```bash
-npx playwright install --with-deps
+# Run all tests
+npm test
+
+# Run smoke tests (fast health checks)
+npm run test:smoke
+
+# Run tests with UI mode
+npm run test:ui
 ```
 
-## Running Tests
-
-### Run all tests
+### Specific Test Suites
 ```bash
-# Run tests with both JSON and HTML reporters
-npx playwright test
+# Browser-specific tests
+npm run test:chrome        # Chromium tests
+npm run test:mobile        # Mobile Safari tests
+
+# Test type-specific
+npm run test:accessibility # WCAG compliance tests
+npm run test:performance   # Performance monitoring
+npm run test:resilience    # Error handling tests
+
+# Development modes
+npm run test:headed        # Run with visible browser
+npm run test:debug         # Debug mode with step-by-step execution
 ```
 
-### Run specific test file
+### CI/CD Tests
 ```bash
-npx playwright test tests/about-page.spec.js
+# Run all test suites (for CI)
+npm run test:all
+
+# Generate CI-friendly reports
+npm run test:ci
 ```
 
-### Run tests for specific browser/device
+## 📊 Test Reports
+
+After running tests, view reports:
 ```bash
-# Desktop Chrome
-npx playwright test --project=chromium
+# Open HTML report
+npm run report
 
-# Mobile Safari
-npx playwright test --project="Mobile Safari"
+# Reports are generated in:
+test-results/
+├── html-report/          # Interactive HTML report
+├── results.json          # JSON test results
+├── junit.xml            # JUnit XML for CI integration
+└── artifacts/           # Screenshots, videos, traces
 ```
 
-### Debug mode
+## 🏗 Test Architecture
+
+### Page Object Model
+The framework uses the Page Object Model pattern for maintainable and reusable test code:
+
+- **BasePage**: Common functionality shared across all pages
+- **Page Objects**: Specific page implementations (AboutPage, ContactPage, etc.)
+- **Component Objects**: Reusable components (Header, Footer)
+- **Selectors**: Centralized element selectors using data-testid attributes
+
+### Test Categories
+
+1. **Smoke Tests** (`smoke.spec.js`)
+   - Basic functionality verification
+   - Quick health checks
+   - Critical path validation
+
+2. **Functional Tests** (`*-page.spec.js`)
+   - Feature-specific testing
+   - User journey validation
+   - Cross-page navigation
+
+3. **Accessibility Tests** (`accessibility.spec.js`)
+   - WCAG 2.1 compliance
+   - Keyboard navigation
+   - Screen reader compatibility
+   - Color contrast verification
+
+4. **Performance Tests** (`performance.spec.js`)
+   - Page load times
+   - Resource usage monitoring
+   - Memory leak detection
+   - Mobile performance
+
+5. **Resilience Tests** (`resilience.spec.js`)
+   - Error handling
+   - Network failure simulation
+   - Graceful degradation
+   - Browser compatibility
+
+## 🔧 Configuration
+
+### Playwright Configuration (`playwright.config.js`)
+- Timeout settings optimized for stability
+- Multiple browser projects
+- Screenshot and video on failure
+- Trace collection for debugging
+
+### Environment Variables
 ```bash
-# Run in headed mode
-npx playwright test --headed
+# Set base URL (optional)
+BASE_URL=https://www.arthursenko.com/
 
-# Run with debug inspector
-npx playwright test --debug
+# CI mode
+CI=true
 ```
 
-## Test Reporting
+## 🚀 GitHub Actions CI/CD
 
-The framework includes a comprehensive reporting system:
+The project includes a comprehensive GitHub Actions workflow:
 
-1. Test Execution Reports
-   - HTML Report: `test-results/html-report/index.html`
-   - JSON Results: `test-results/results.json`
-   - Formatted Report: `test-results/playwright-report.json`
+- **Multi-Node Testing**: Tests on Node.js 18 and 20
+- **Parallel Execution**: Different test suites run in parallel
+- **Artifact Collection**: Test reports and screenshots
+- **Security Auditing**: Dependency vulnerability checks
+- **Lighthouse Integration**: Performance monitoring
+- **Scheduled Testing**: Daily automated runs
 
-2. Test Artifacts
-   - Screenshots (on failure)
-   - Videos (on failure)
-   - Trace files
-   - Error logs
+## 📝 Writing Tests
 
-3. Live Results Dashboard
-   - All test results are automatically uploaded to the backend API
-   - Results are visible in real-time on the Live Test Automation page
-   - Historical test runs are preserved for trend analysis
+### Basic Test Structure
+```javascript
+const { test, expect } = require('@playwright/test');
+const { PageObject } = require('../pages/pageObject');
 
-## Continuous Integration
+test.describe('Feature Name', () => {
+    let pageObject;
 
-Tests are automated through GitHub Actions:
+    test.beforeEach(async ({ page }) => {
+        pageObject = new PageObject(page);
+        await page.goto('');
+    });
 
-1. Scheduled Runs
-   - Nightly tests at 00:00 UTC
-   - Full suite across all browsers/devices
-   - Results automatically uploaded to dashboard
+    test('should verify functionality', async () => {
+        // Test implementation
+        expect(await pageObject.verifyElement()).toBeTruthy();
+    });
+});
+```
 
-2. Manual Triggers
-   - Can be initiated from GitHub Actions UI
-   - Useful for on-demand validation
+### Best Practices
+1. Use Page Object Model for element interactions
+2. Implement data-testid attributes for reliable selectors
+3. Add appropriate waits for dynamic content
+4. Include accessibility checks in functional tests
+5. Monitor performance metrics
+6. Test error scenarios and edge cases
 
-3. Workflow Features
-   - Parallel test execution
-   - Comprehensive error reporting
-   - Artifact preservation
-   - Automatic result processing
-   - Failure notifications
+## 🐛 Debugging
 
-## Best Practices
+### Debug Mode
+```bash
+# Run in debug mode
+npm run test:debug
 
-1. Page Objects
-   - Use base page methods
-   - Prefer data-testid selectors
-   - Implement robust waiting strategies
+# Run specific test with debugging
+npx playwright test tests/about-page.spec.js --debug
+```
 
-2. Test Design
-   - Independent test cases
-   - Clear test descriptions
-   - Proper setup/teardown
+### Trace Viewer
+```bash
+# View traces for failed tests
+npx playwright show-trace test-results/trace.zip
+```
 
-3. Mobile Testing
-   - Test responsive behavior
-   - Verify mobile navigation
-   - Check touch interactions
+### Screenshots and Videos
+Failed tests automatically capture:
+- Screenshots at failure point
+- Video recordings of the session
+- Network activity logs
+- Console output
 
-## Contributing
+## 🤝 Contributing
 
-1. Create a feature branch
-2. Make your changes
-3. Run all tests locally
-4. Submit a pull request
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
 
-## Debugging
+### Adding New Tests
+1. Create test file in appropriate directory
+2. Follow naming convention: `feature-name.spec.js`
+3. Implement using Page Object Model
+4. Add selectors to `selectors.js`
+5. Update this README if needed
 
-For failed tests in CI:
-1. Check the HTML report in artifacts
-2. Review error screenshots and videos
-3. Analyze trace files if needed
-4. Check the Live Test Automation dashboard
+## 📞 Support
 
-## Support
+- **Issues**: Report bugs and feature requests via GitHub Issues
+- **Documentation**: Check the [Playwright documentation](https://playwright.dev/)
+- **Code Review**: All PRs require review and passing tests
 
-For questions or issues:
-1. Review existing GitHub issues
-2. Check the documentation
-3. Contact the team
+## 📈 Test Metrics
+
+The test suite monitors:
+- **Test Coverage**: Functional coverage across all pages
+- **Performance**: Page load times, resource usage
+- **Accessibility**: WCAG compliance scores
+- **Reliability**: Test pass rates and flakiness
+- **Cross-Browser**: Compatibility across different browsers and devices
+
+## 🔮 Future Enhancements
+
+- [ ] Visual regression testing with Playwright screenshots
+- [ ] API testing integration
+- [ ] Load testing with multiple concurrent users
+- [ ] Integration with monitoring tools
+- [ ] Advanced accessibility testing with axe-core
+- [ ] Performance budgets and alerts
+- [ ] Test data management
+- [ ] Parallel test execution optimization
+
+---
+
+**Built with ❤️ using Playwright and modern testing practices**

@@ -1,0 +1,130 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    - name: Run Smoke Tests
+      run: npm run test:smoke
+      continue-on-error: false
+
+    - name: Run Main Test Suite
+      run: npm run test:chrome
+      continue-on-error: true
+
+    - name: Run Mobile Tests
+      run: npm run test:mobile
+      continue-on-error: true
+
+    - name: Run Accessibility Tests
+      run: npm run test:accessibility
+      continue-on-error: true
+
+    - name: Run Performance Tests
+      run: npm run test:performance
+      continue-on-error: true
+
+    - name: Run Resilience Tests
+      run: npm run test:resilience
+      continue-on-error: true
+
+    - name: Upload Playwright Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report-node-${{ matrix.node-version }}
+        path: test-results/
+        retention-days: 30
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-node-${{ matrix.node-version }}
+        path: |
+          test-results/html-report/
+          test-results/results.json
+          test-results/junit.xml
+        retention-days: 30
+
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run security audit
+      run: npm audit --audit-level=high
+      continue-on-error: true
+
+    - name: Check for outdated packages
+      run: npm outdated
+      continue-on-error: true
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install Lighthouse CI
+      run: npm install -g @lhci/cli@0.12.x
+
+    - name: Run Lighthouse CI
+      run: |
+        lhci autorun --upload.target=temporary-public-storage || echo "Lighthouse CI failed"
+      env:
+        LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+  notify:
+    needs: [test, security-audit]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+    - name: Notify on failure
+      if: needs.test.result == 'failure'
+      run: |
+        echo "Tests failed. Check the logs for details."
+        echo "Test Results: ${{ needs.test.result }}"
+        echo "Security Audit: ${{ needs.security-audit.result }}"

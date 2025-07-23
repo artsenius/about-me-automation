@@ -1,18 +1,35 @@
 {
   "name": "about-me-automation",
   "version": "1.0.0",
-  "description": "",
+  "description": "Comprehensive Playwright test suite for arthursenko.com with accessibility, performance, and resilience testing",
   "main": "index.js",
   "scripts": {
     "test": "npx playwright test",
-    "start": "npx playwright test --ui"
+    "test:smoke": "npx playwright test --project=smoke",
+    "test:chrome": "npx playwright test --project=chromium",
+    "test:mobile": "npx playwright test --project='Mobile Safari'",
+    "test:accessibility": "npx playwright test tests/accessibility.spec.js",
+    "test:performance": "npx playwright test tests/performance.spec.js",
+    "test:resilience": "npx playwright test tests/resilience.spec.js",
+    "test:headed": "npx playwright test --headed",
+    "test:debug": "npx playwright test --debug",
+    "test:ui": "npx playwright test --ui",
+    "report": "npx playwright show-report",
+    "install:browsers": "npx playwright install",
+    "install:deps": "npx playwright install-deps",
+    "test:all": "npm run test:smoke && npm run test:chrome && npm run test:mobile",
+    "test:ci": "npx playwright test --reporter=html,junit,json"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["playwright", "testing", "automation", "accessibility", "performance", "e2e"],
+  "author": "Test Automation Team",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
     "@playwright/test": "^1.53.1",
     "axios": "^1.10.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=16.0.0"
   }
 }
