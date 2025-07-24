@@ -36,12 +36,13 @@ module.exports = defineConfig({
             name: 'chromium',
             use: { ...{ browserName: 'chromium' } },
         },
-        {
+        // Conditionally add Mobile Safari only if webkit dependencies are available
+        ...(process.env.SKIP_WEBKIT !== 'true' ? [{
             name: 'Mobile Safari',
             use: {
                 ...devices['iPhone 15'],
                 viewport: { width: 390, height: 844 },
             },
-        },
+        }] : []),
     ],
 });
