@@ -1,0 +1,165 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        # Test on different Node.js versions
+        node-version: [18, 20]
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    
+    - name: Run Playwright tests
+      run: npm test
+      env:
+        CI: true
+    
+    - name: Upload Playwright Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report-node-${{ matrix.node-version }}
+        path: test-results/
+        retention-days: 30
+
+  accessibility-tests:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Accessibility Tests
+      run: npx playwright test tests/accessibility.spec.js
+      env:
+        CI: true
+    - name: Upload Accessibility Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: accessibility-report
+        path: test-results/
+        retention-days: 30
+
+  performance-tests:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Performance Tests
+      run: npx playwright test tests/performance.spec.js --project=performance
+      env:
+        CI: true
+    - name: Upload Performance Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-report
+        path: test-results/
+        retention-days: 30
+
+  security-tests:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Security Tests
+      run: npx playwright test tests/security.spec.js --project=security
+      env:
+        CI: true
+    - name: Upload Security Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-report
+        path: test-results/
+        retention-days: 30
+
+  mobile-tests:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Mobile Tests
+      run: npx playwright test --project="Mobile Safari"
+      env:
+        CI: true
+    - name: Upload Mobile Test Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: mobile-test-report
+        path: test-results/
+        retention-days: 30
+
+  test-summary:
+    if: always()
+    needs: [test, accessibility-tests, performance-tests, security-tests, mobile-tests]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test Summary
+      run: |
+        echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Main Tests | ${{ needs.test.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Accessibility | ${{ needs.accessibility-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Performance | ${{ needs.performance-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Security | ${{ needs.security-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Mobile | ${{ needs.mobile-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "View detailed reports in the artifacts section above." >> $GITHUB_STEP_SUMMARY
