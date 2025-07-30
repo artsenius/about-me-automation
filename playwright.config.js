@@ -36,12 +36,12 @@ module.exports = defineConfig({
             name: 'chromium',
             use: { ...{ browserName: 'chromium' } },
         },
-        {
-            name: 'Mobile Safari',
-            use: {
-                ...devices['iPhone 15'],
-                viewport: { width: 390, height: 844 },
-            },
-        },
+        // {
+        //     name: 'Mobile Safari',
+        //     use: {
+        //         ...devices['iPhone 15'],
+        //         viewport: { width: 390, height: 844 },
+        //     },
+        // },
     ],
 });
