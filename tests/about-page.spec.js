@@ -75,15 +75,8 @@ test.describe('About Page', () => {
         expect(await aboutPage.isSkillsSectionVisible()).toBeTruthy();
         expect(await aboutPage.getSkillsTitle()).toBe('Technical Skills');
 
-        // Verify skills count with better error handling
-        const skillsCount = await aboutPage.getSkillsCount();
-        expect(skillsCount).toBeGreaterThan(0); // First ensure we have some skills
-        expect(skillsCount).toBe(30); // Then verify exact count
-        
-        // Additional verification that skills are actually loaded
-        if (skillsCount === 0) {
-            throw new Error('No skills found - page may not be fully loaded');
-        }
+        // Verify skills count and content
+        expect(await aboutPage.getSkillsCount()).toBe(30);
     });
 
     test('should display achievements section', async () => {
