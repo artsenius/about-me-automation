@@ -21,7 +21,7 @@ module.exports = defineConfig({
     ],
     use: {
         // Base URL for relative navigation
-        baseURL: 'https://www.arthursenko.com/',
+        baseURL: 'http://localhost:3000/',
         headless: true,
         viewport: { width: 1280, height: 720 },
         actionTimeout: 0,
@@ -29,7 +29,9 @@ module.exports = defineConfig({
         video: 'retain-on-failure',
         screenshot: 'only-on-failure',
         // Store traces in test-results
-        trace: 'retain-on-failure'
+        trace: 'retain-on-failure',
+        // Grant clipboard permissions to avoid clipboard API errors
+        permissions: ['clipboard-read', 'clipboard-write']
     },
     projects: [
         {

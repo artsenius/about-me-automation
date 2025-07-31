@@ -118,12 +118,68 @@ class AboutPage extends BasePage {
     }
 
     async getSkillsCount() {
-        const skillElements = await this.page.locator(this.selectors.skillItems).all();
+        // First ensure skills section is visible
+        await this.isSkillsSectionVisible();
+        
+        // Wait for skills to be present with retry logic
+        let skillElements = [];
+        let attempts = 0;
+        const maxAttempts = 5;
+        
+        while (attempts < maxAttempts) {
+            // Scroll to skills section to ensure it's loaded
+            await this.page.locator(this.selectors.skillsSection).scrollIntoViewIfNeeded();
+            
+            // Wait a bit for content to load
+            await this.page.waitForTimeout(500);
+            
+            // Try to get skill elements
+            skillElements = await this.page.locator(this.selectors.skillItems).all();
+            
+            // If we found skills, break out of retry loop
+            if (skillElements.length > 0) {
+                break;
+            }
+            
+            attempts++;
+            if (attempts < maxAttempts) {
+                await this.page.waitForTimeout(1000); // Wait before retry
+            }
+        }
+        
         return skillElements.length;
     }
 
     async getAllSkills() {
-        const skillElements = await this.page.locator(this.selectors.skillItems).all();
+        // First ensure skills section is visible
+        await this.isSkillsSectionVisible();
+        
+        // Wait for skills to be present with retry logic
+        let skillElements = [];
+        let attempts = 0;
+        const maxAttempts = 5;
+        
+        while (attempts < maxAttempts) {
+            // Scroll to skills section to ensure it's loaded
+            await this.page.locator(this.selectors.skillsSection).scrollIntoViewIfNeeded();
+            
+            // Wait a bit for content to load
+            await this.page.waitForTimeout(500);
+            
+            // Try to get skill elements
+            skillElements = await this.page.locator(this.selectors.skillItems).all();
+            
+            // If we found skills, break out of retry loop
+            if (skillElements.length > 0) {
+                break;
+            }
+            
+            attempts++;
+            if (attempts < maxAttempts) {
+                await this.page.waitForTimeout(1000); // Wait before retry
+            }
+        }
+        
         return await Promise.all(skillElements.map(element => element.textContent()));
     }
 
