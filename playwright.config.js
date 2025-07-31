@@ -21,7 +21,7 @@ module.exports = defineConfig({
     ],
     use: {
         // Base URL for relative navigation
-        baseURL: 'http://localhost:3000/',
+        baseURL: 'https://www.arthursenko.com/',
         headless: true,
         viewport: { width: 1280, height: 720 },
         actionTimeout: 0,
