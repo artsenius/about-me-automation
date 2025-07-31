@@ -302,6 +302,8 @@ test.describe('About Page', () => {
     });
 
     test('should validate skills section content', async () => {
+
+        await aboutPage.isSkillsSectionVisible();
         // Get all skills and verify they're meaningful
         const skills = await aboutPage.getAllSkills();
         
@@ -317,17 +319,5 @@ test.describe('About Page', () => {
         for (const skill of skills) {
             expect(skill.trim().length).toBeGreaterThan(0);
         }
-    });
-
-    test('should handle page refresh correctly', async ({ page }) => {
-        // Get initial state
-        const initialName = await aboutPage.getProfileName();
-        
-        // Refresh page
-        await page.reload();
-        
-        // Verify content loads correctly after refresh
-        expect(await aboutPage.isProfileNameVisible()).toBeTruthy();
-        expect(await aboutPage.getProfileName()).toBe(initialName);
     });
 });

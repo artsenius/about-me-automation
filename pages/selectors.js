@@ -47,7 +47,7 @@ module.exports = {
         skillsSection: '[data-testid="skills-section"]',
         skillsTitle: '[data-testid="skills-title"]',
         skillsList: '[data-testid="skills-list"]',
-        skillItems: '[data-testid^="skill-"]',
+        skillItems: '[data-testid^="skill-item-"]',
 
         // Achievements Section
         achievementsSection: '[data-testid="achievements-section"]',

@@ -29,7 +29,9 @@ module.exports = defineConfig({
         video: 'retain-on-failure',
         screenshot: 'only-on-failure',
         // Store traces in test-results
-        trace: 'retain-on-failure'
+        trace: 'retain-on-failure',
+        // Grant clipboard permissions to avoid clipboard API errors
+        permissions: ['clipboard-read', 'clipboard-write']
     },
     projects: [
         {
