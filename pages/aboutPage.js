@@ -118,7 +118,7 @@ class AboutPage extends BasePage {
     }
 
     async getSkillsCount() {
-        const skillElements = await this.page.locator(this.selectors.skillItems).all(); 
+        const skillElements = await this.page.locator(this.selectors.skillItems).all();
         return skillElements.length;
     }
 
