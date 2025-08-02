@@ -170,33 +170,7 @@ class Header extends BasePage {
         }
     }
 
-    // Navigation Methods
-    async prepareForNavigation() {
-        // If hamburger menu is visible, make sure it's open before navigating
-        if (await this.isHamburgerMenuVisible()) {
-            await this.openHamburgerMenu();
-        }
-    }
-
-    async navigateToAboutMe() {
-        await this.prepareForNavigation();
-        await this.click(this.selectors.navLinkAboutMe);
-    }
-
-    async navigateToAboutApp() {
-        await this.prepareForNavigation();
-        await this.click(this.selectors.navLinkAboutApp);
-    }
-
-    async navigateToLiveAutomation() {
-        await this.prepareForNavigation();
-        await this.click(this.selectors.navLinkLiveAutomation);
-    }
-
-    async navigateToContact() {
-        await this.prepareForNavigation();
-        await this.click(this.selectors.navLinkContact);
-    }
+    // Navigation Methods (improved versions with proper waiting and menu handling are above)
 
     // Helper methods
     async waitForVisible(selector) {
