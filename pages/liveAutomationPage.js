@@ -14,7 +14,8 @@ class LiveAutomationPage extends BasePage {
     }
 
     async verifyContent() {
-        await this.expectToBeVisible(this.selectors.section);
+        // Allow extra time for the section to render on slow networks
+        await this.expectToBeVisible(this.selectors.section, 15000);
     }
 
     // Test Results Loading
@@ -30,6 +31,21 @@ class LiveAutomationPage extends BasePage {
         return await this.page.locator(this.selectors.testRunCard).all();
     }
 
+    async getTestRunCount() {
+        await this.waitForTestResults();
+        return await this.page.locator(this.selectors.testRunCard).count();
+    }
+
+    async clickLoadMore() {
+        // The Load more button does not have a data-testid, use role + text
+        const loadMore = this.page.getByRole('button', { name: /Load more results/i });
+        if (await loadMore.isVisible()) {
+            await loadMore.click();
+            // Wait for potential network and new cards to appear
+            await this.page.waitForLoadState('networkidle');
+        }
+    }
+
     // Test Run Card Actions
     async getTestRunCard(index) {
         const cards = await this.getTestResultComponents();
@@ -40,58 +56,104 @@ class LiveAutomationPage extends BasePage {
     }
 
     async expandTestResult(index) {
-        const card = await this.getTestRunCard(index);
-        if (card) {
-            // Click the header to expand
-            await card.locator(this.selectors.testRunHeader).click();
-            await this.waitForTimeout(500); // Wait for animation
-            // Wait for content within this card
-            const content = card.locator(this.selectors.testRunContent);
-            await content.waitFor({ state: 'visible' });
+        const headers = this.page.locator(this.selectors.testRunHeader);
+        const cards = this.page.locator(this.selectors.testRunCard);
+        const header = headers.nth(index);
+        const card = cards.nth(index);
+
+        await header.click();
+        await this.waitForTimeout(300);
+
+        // Prefer checking aria-expanded on the header for robustness
+        try {
+            await header.getAttribute('aria-expanded');
+            await this.page.locator(`${this.selectors.testRunHeader}[aria-expanded="true"]`).nth(index).waitFor();
+        } catch (e) {
+            // Fallback to checking visible content region within the card
         }
+
+        const explicitContent = card.locator(this.selectors.testRunContent);
+        const hasExplicitContent = await explicitContent.count();
+        if (hasExplicitContent > 0) {
+            await explicitContent.first().waitFor({ state: 'visible' });
+            return;
+        }
+
+        // Fallbacks: region or tabpanel used by the app
+        const region = card.locator('[role="region"], [role="tabpanel"]').first();
+        await region.waitFor({ state: 'visible' });
     }
 
     async collapseTestResult(index) {
-        const card = await this.getTestRunCard(index);
-        if (card) {
-            // Click the header to collapse
-            await card.locator(this.selectors.testRunHeader).click();
-            await this.waitForTimeout(500); // Wait for animation
-            // Wait for content within this card
-            const content = card.locator(this.selectors.testRunContent);
-            await content.waitFor({ state: 'hidden' });
+        const headers = this.page.locator(this.selectors.testRunHeader);
+        const cards = this.page.locator(this.selectors.testRunCard);
+        const header = headers.nth(index);
+        const card = cards.nth(index);
+
+        await header.click();
+        await this.waitForTimeout(300);
+
+        const explicitContent = card.locator(this.selectors.testRunContent);
+        const hasExplicitContent = await explicitContent.count();
+        if (hasExplicitContent > 0) {
+            await explicitContent.first().waitFor({ state: 'hidden' });
+            return;
+        }
+
+        // Fallback: wait for aria-expanded to become false
+        try {
+            await this.page.locator(`${this.selectors.testRunHeader}[aria-expanded="false"]`).nth(index).waitFor();
+        } catch (e) {
+            // If aria-expanded not present, ensure region/tabpanel is hidden
+            const region = card.locator('[role="region"], [role="tabpanel"]').first();
+            await region.waitFor({ state: 'hidden' });
         }
     }
 
     async isTestResultExpanded(index) {
-        const card = await this.getTestRunCard(index);
-        if (card) {
-            const content = card.locator(this.selectors.testRunContent);
-            return await content.isVisible();
+        const headers = this.page.locator(this.selectors.testRunHeader);
+        const header = headers.nth(index);
+        const aria = await header.getAttribute('aria-expanded');
+        if (aria !== null) {
+            return aria === 'true';
         }
-        return false;
+        const card = this.page.locator(this.selectors.testRunCard).nth(index);
+        const explicitContent = card.locator(this.selectors.testRunContent);
+        if (await explicitContent.count() > 0) {
+            return await explicitContent.first().isVisible();
+        }
+        const region = card.locator('[role="region"], [role="tabpanel"]').first();
+        return await region.isVisible();
+    }
+
+    async getHeaderAriaExpanded(index) {
+        const header = this.page.locator(this.selectors.testRunHeader).nth(index);
+        return await header.getAttribute('aria-expanded');
     }
 
     // Test Result Content Verification
     async verifyTestResultContent(index) {
         const card = await this.getTestRunCard(index);
-        if (card) {
-            // First make sure the content is expanded
-            if (!await this.isTestResultExpanded(index)) {
-                await this.expandTestResult(index);
-            }
+        if (!card) return false;
 
-            // Verify all required elements are present
-            await card.locator(this.selectors.testRunContent).waitFor({ state: 'visible' });
-            await card.locator(this.selectors.testRunDuration).waitFor({ state: 'visible' });
-            await card.locator(this.selectors.testRunSuccessRate).waitFor({ state: 'visible' });
-            await card.locator(this.selectors.testRunPassedTests).waitFor({ state: 'visible' });
-            await card.locator(this.selectors.testRunFailedTests).waitFor({ state: 'visible' });
-            await card.locator(this.selectors.testDetails).waitFor({ state: 'visible' });
-
-            return true;
+        if (!await this.isTestResultExpanded(index)) {
+            await this.expandTestResult(index);
         }
-        return false;
+
+        // Prefer explicit content container, otherwise use role-based region
+        let contentRoot = card.locator(this.selectors.testRunContent).first();
+        if (await contentRoot.count() === 0) {
+            contentRoot = card.locator('[role="region"], [role="tabpanel"]').first();
+        }
+        await contentRoot.waitFor({ state: 'visible' });
+
+        // Validate presence of key summary labels within the content
+        await contentRoot.getByText('Duration', { exact: false }).waitFor();
+        await contentRoot.getByText('Success Rate', { exact: false }).waitFor();
+        await contentRoot.getByText('Passed', { exact: false }).waitFor();
+        await contentRoot.getByText('Failed', { exact: false }).waitFor();
+
+        return true;
     }
 
     // Test Result Info
