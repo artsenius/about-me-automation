@@ -30,19 +30,34 @@ module.exports = defineConfig({
         screenshot: 'only-on-failure',
         // Store traces in test-results
         trace: 'retain-on-failure',
-        // Grant clipboard permissions to avoid clipboard API errors
+        // Grant clipboard permissions to avoid clipboard API errors (Chromium only)
         permissions: ['clipboard-read', 'clipboard-write']
     },
     projects: [
         {
             name: 'chromium',
-            use: { ...{ browserName: 'chromium' } },
+            use: { 
+                ...devices['Desktop Chrome'],
+                // Override permissions for Chromium specifically
+                permissions: ['clipboard-read', 'clipboard-write']
+            },
         },
         // {
-        //     name: 'Mobile Safari',
+        //     name: 'Mobile Chrome',
         //     use: {
-        //         ...devices['iPhone 15'],
-        //         viewport: { width: 390, height: 844 },
+        //         ...devices['Pixel 5'],
+        //         viewport: { width: 393, height: 851 },
+        //         // Mobile Chrome might not support all clipboard permissions
+        //         permissions: []
+        //     },
+        // },
+        // Commented out problematic browsers for this environment
+        // {
+        //     name: 'firefox',
+        //     use: { 
+        //         ...devices['Desktop Firefox'],
+        //         // Firefox doesn't support clipboard-read permission
+        //         permissions: []
         //     },
         // },
     ],
