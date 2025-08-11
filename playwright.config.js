@@ -42,15 +42,15 @@ module.exports = defineConfig({
                 permissions: ['clipboard-read', 'clipboard-write']
             },
         },
-        {
-            name: 'Mobile Chrome',
-            use: {
-                ...devices['Pixel 5'],
-                viewport: { width: 393, height: 851 },
-                // Mobile Chrome might not support all clipboard permissions
-                permissions: []
-            },
-        },
+        // {
+        //     name: 'Mobile Chrome',
+        //     use: {
+        //         ...devices['Pixel 5'],
+        //         viewport: { width: 393, height: 851 },
+        //         // Mobile Chrome might not support all clipboard permissions
+        //         permissions: []
+        //     },
+        // },
         // Commented out problematic browsers for this environment
         // {
         //     name: 'firefox',
