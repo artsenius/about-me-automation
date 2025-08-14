@@ -23,7 +23,13 @@ module.exports = {
 
         // Footer elements
         footer: '[data-testid="footer"]',
-        copyright: '[data-testid="footer-copyright"]'
+        copyright: '[data-testid="footer-copyright"]',
+
+        // Common interactive elements
+        buttons: '[data-testid^="button-"]',
+        links: '[data-testid^="link-"]',
+        listItems: '[data-testid^="list-item-"]',
+        cards: '[data-testid^="card-"]'
     },
 
     about: {
@@ -48,16 +54,24 @@ module.exports = {
         skillsTitle: '[data-testid="skills-title"]',
         skillsList: '[data-testid="skills-list"]',
         skillItems: '[data-testid^="skill-item-"]',
+        skillItemsGeneric: '[data-testid="skills-list"] li',
 
         // Achievements Section
         achievementsSection: '[data-testid="achievements-section"]',
         achievementsTitle: '[data-testid="achievements-title"]',
         achievementsList: '[data-testid="achievements-list"]',
         achievementItems: '[data-testid="achievements-list"] > li',
+        achievementItemsGeneric: '[data-testid^="achievement-item-"]',
         
         // Additional elements
         appInfoBox: '[data-testid="app-info-box"]',
         backToTopButton: '[aria-label="Back to top"]',
+
+        // Suggested new selectors for missing elements
+        externalLinks: '[data-testid^="external-link-"]',
+        internalLinks: '[data-testid^="internal-link-"]',
+        paragraphs: '[data-testid^="paragraph-"]',
+        spans: '[data-testid^="span-"]'
     },
 
     automation: {
@@ -72,7 +86,7 @@ module.exports = {
         testRunHeader: '[data-testid^="test-run-header-"]',
         testRunContent: '[data-testid="test-run-content"]',
 
-        // Test Run Stats
+        // Test Run Stats - Updated with more specific selectors
         testRunDuration: '[data-testid="test-run-duration"]',
         testRunSuccessRate: '[data-testid="test-run-success-rate"]',
         testRunPassedTests: '[data-testid="test-run-passed-tests"]',
@@ -81,9 +95,37 @@ module.exports = {
         testRunBlockedTests: '[data-testid="test-run-blocked-tests"]',
         testDetails: '[data-testid^="test-details-"]',
 
+        // Additional Test Run Stats (currently missing from page)
+        testRunTotalTests: '[data-testid="test-run-total-tests"]',
+        testRunStartTime: '[data-testid="test-run-start-time"]',
+        testRunEndTime: '[data-testid="test-run-end-time"]',
+        testRunEnvironment: '[data-testid="test-run-environment"]',
+        testRunBrowser: '[data-testid="test-run-browser"]',
+        testRunStatus: '[data-testid="test-run-status"]',
+
+        // Test Case Details
+        testCaseName: '[data-testid^="test-case-name-"]',
+        testCaseStatus: '[data-testid^="test-case-status-"]',
+        testCaseDuration: '[data-testid^="test-case-duration-"]',
+        testCaseError: '[data-testid^="test-case-error-"]',
+
         // Loading state
-        loadingPlaceholder: '[data-testid="loading-placeholder"]'
-    }, contact: {
+        loadingPlaceholder: '[data-testid="loading-placeholder"]',
+        loadingSpinner: '[data-testid="loading-spinner"]',
+        
+        // Error states
+        errorMessage: '[data-testid="error-message"]',
+        retryButton: '[data-testid="retry-button"]',
+
+        // Filters and controls
+        filterDropdown: '[data-testid="filter-dropdown"]',
+        sortDropdown: '[data-testid="sort-dropdown"]',
+        refreshButton: '[data-testid="refresh-button"]',
+        expandAllButton: '[data-testid="expand-all-button"]',
+        collapseAllButton: '[data-testid="collapse-all-button"]'
+    }, 
+
+    contact: {
         // Contact Cards
         emailCard: '[data-testid="contact-card-email"]',
         phoneCard: '[data-testid="contact-card-phone"]',
@@ -106,6 +148,15 @@ module.exports = {
         linkedInLink: '[data-testid="contact-card-linkedin"] a[href*="linkedin.com"]',
         linkedInCopyButton: '[data-testid="contact-card-linkedin"] button',
         linkedInCopiedState: '[data-testid="copy-message-linkedin"]',
+
+        // Additional Contact Elements (suggested)
+        contactForm: '[data-testid="contact-form"]',
+        contactFormName: '[data-testid="contact-form-name"]',
+        contactFormEmail: '[data-testid="contact-form-email"]',
+        contactFormMessage: '[data-testid="contact-form-message"]',
+        contactFormSubmit: '[data-testid="contact-form-submit"]',
+        contactFormSuccess: '[data-testid="contact-form-success"]',
+        contactFormError: '[data-testid="contact-form-error"]'
     },
 
     aboutApp: {
@@ -122,5 +173,67 @@ module.exports = {
         backendCodeLink: '[data-testid="github-backend-link"]',
         automationCodeLink: '[data-testid="about-app-automation-link"]',
         liveTestResultsLink: '[data-testid="live-automation-link"]',
+
+        // Technology Lists (suggested)
+        frontendTechList: '[data-testid="frontend-tech-list"]',
+        backendTechList: '[data-testid="backend-tech-list"]',
+        automationTechList: '[data-testid="automation-tech-list"]',
+        devToolsList: '[data-testid="dev-tools-list"]',
+        
+        // Technology Items
+        techItems: '[data-testid^="tech-item-"]',
+        
+        // Code snippets or examples
+        codeExamples: '[data-testid^="code-example-"]',
+        
+        // Expandable sections
+        expandableSection: '[data-testid^="expandable-section-"]',
+        expandButton: '[data-testid^="expand-button-"]',
+        collapseButton: '[data-testid^="collapse-button-"]'
     },
+
+    // New accessibility selectors
+    accessibility: {
+        focusableElements: '[data-testid^="focusable-"]',
+        skipLinks: '[data-testid^="skip-link-"]',
+        landmarks: '[data-testid^="landmark-"]',
+        headings: '[data-testid^="heading-"]',
+        ariaLabels: '[data-testid^="aria-"]',
+        ariaDescribedBy: '[data-testid^="described-by-"]'
+    },
+
+    // Performance and loading selectors
+    performance: {
+        loadingIndicators: '[data-testid^="loading-"]',
+        progressBars: '[data-testid^="progress-"]',
+        lazyLoadedImages: '[data-testid^="lazy-image-"]',
+        lazyLoadedSections: '[data-testid^="lazy-section-"]'
+    },
+
+    // Form elements (if any forms are added)
+    forms: {
+        form: '[data-testid^="form-"]',
+        input: '[data-testid^="input-"]',
+        textarea: '[data-testid^="textarea-"]',
+        select: '[data-testid^="select-"]',
+        checkbox: '[data-testid^="checkbox-"]',
+        radio: '[data-testid^="radio-"]',
+        submitButton: '[data-testid^="submit-"]',
+        resetButton: '[data-testid^="reset-"]',
+        validationError: '[data-testid^="error-"]',
+        validationSuccess: '[data-testid^="success-"]'
+    },
+
+    // Modal and overlay selectors
+    modals: {
+        modal: '[data-testid^="modal-"]',
+        modalOverlay: '[data-testid^="modal-overlay-"]',
+        modalHeader: '[data-testid^="modal-header-"]',
+        modalBody: '[data-testid^="modal-body-"]',
+        modalFooter: '[data-testid^="modal-footer-"]',
+        modalCloseButton: '[data-testid^="modal-close-"]',
+        tooltip: '[data-testid^="tooltip-"]',
+        dropdown: '[data-testid^="dropdown-"]',
+        popup: '[data-testid^="popup-"]'
+    }
 };
