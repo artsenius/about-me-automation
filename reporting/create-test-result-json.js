@@ -57,8 +57,10 @@ function processTestResults(rawData) {
     // Track failed tests with details
     const failedTests = [];
 
-    rawData.suites.forEach(mainSuite => {
-        mainSuite.suites.forEach(suite => {
+    // Recursive function to process nested suites
+    function processSuite(suite, file, parentSuiteTitle = '') {
+        // Process specs in current suite
+        if (suite.specs && suite.specs.length > 0) {
             suite.specs.forEach(spec => {
                 spec.tests.forEach(test => {
                     const result = test.results[0]; // Take first result
@@ -70,7 +72,7 @@ function processTestResults(rawData) {
                         failedTests.push({
                             title: spec.title,
                             suite: suite.title,
-                            file: mainSuite.file,
+                            file: file,
                             error: result.errors[0]?.message || 'Unknown error'
                         });
                     }
@@ -79,7 +81,7 @@ function processTestResults(rawData) {
                     testResults.push({
                         title: spec.title,
                         suite: suite.title,
-                        file: mainSuite.file,
+                        file: file,
                         browser: test.projectName,
                         status: status,
                         duration: result.duration,
@@ -90,7 +92,22 @@ function processTestResults(rawData) {
                     });
                 });
             });
-        });
+        }
+
+        // Recursively process nested suites
+        if (suite.suites && suite.suites.length > 0) {
+            suite.suites.forEach(nestedSuite => {
+                processSuite(nestedSuite, file, suite.title);
+            });
+        }
+    }
+
+    rawData.suites.forEach(mainSuite => {
+        if (mainSuite.suites && mainSuite.suites.length > 0) {
+            mainSuite.suites.forEach(suite => {
+                processSuite(suite, mainSuite.file);
+            });
+        }
     });
 
     // Include detailed failure information
