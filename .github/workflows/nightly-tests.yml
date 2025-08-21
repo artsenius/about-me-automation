@@ -10,7 +10,7 @@ on:
 jobs:
   playwright_e2e_tests:
     name: Playwright E2E Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # Use Ubuntu 22.04 for better Playwright compatibility
     
     steps:
     - uses: actions/checkout@v4
@@ -25,7 +25,12 @@ jobs:
       run: npm ci
     
     - name: Install Playwright browsers
-      run: npx playwright install --with-deps
+      run: |
+        # Install browsers with fallback handling for OS compatibility
+        npx playwright install --with-deps || {
+          echo "Warning: Official browser installation failed, trying fallback..."
+          npx playwright install chromium
+        }
     
     - name: Run Playwright tests
       id: run_tests
