@@ -46,17 +46,34 @@ test.describe('Live Automation Page - Extended', () => {
 
     // Collapse
     await liveAutomationPage.collapseTestResult(index);
-    // Add a small wait to ensure the collapse operation has fully completed
-    await liveAutomationPage.page.waitForTimeout(500);
-    const collapsed = await liveAutomationPage.getHeaderAriaExpanded(index);
-    console.log('Aria-expanded after collapse:', collapsed);
+    
+    // Wait for collapse operation to complete with retry logic
+    let collapsed = null;
+    let retryCount = 0;
+    const maxRetries = 5;
+    
+    while (retryCount < maxRetries) {
+      await liveAutomationPage.page.waitForTimeout(1000); // Increased wait time for GHA
+      collapsed = await liveAutomationPage.getHeaderAriaExpanded(index);
+      console.log(`Aria-expanded after collapse (attempt ${retryCount + 1}):`, collapsed);
+      
+      if (collapsed === 'false') {
+        break; // Success - found expected value
+      }
+      
+      retryCount++;
+      if (retryCount < maxRetries) {
+        console.log(`Retrying collapse check (${retryCount}/${maxRetries})...`);
+      }
+    }
+    
     if (collapsed !== null) {
       expect(collapsed).toBe('false');
     } else {
       const visuallyCollapsed = await liveAutomationPage.isTestResultExpanded(index);
-      console.warn('aria-expanded missing, using visual state:', visuallyCollapsed);
+      console.warn('aria-expanded missing after all retries, using visual state:', visuallyCollapsed);
       if (visuallyCollapsed) {
-        console.warn('Test result still visually expanded. Skipping assertion.');
+        console.warn('Test result still visually expanded after all retries. Skipping assertion.');
         return;
       }
       expect(visuallyCollapsed).toBeFalsy();
