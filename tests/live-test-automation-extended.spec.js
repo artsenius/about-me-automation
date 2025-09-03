@@ -46,6 +46,8 @@ test.describe('Live Automation Page - Extended', () => {
 
     // Collapse
     await liveAutomationPage.collapseTestResult(index);
+    // Add a small wait to ensure the collapse operation has fully completed
+    await liveAutomationPage.page.waitForTimeout(500);
     const collapsed = await liveAutomationPage.getHeaderAriaExpanded(index);
     console.log('Aria-expanded after collapse:', collapsed);
     if (collapsed !== null) {
