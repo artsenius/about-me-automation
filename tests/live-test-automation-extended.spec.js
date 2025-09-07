@@ -27,54 +27,74 @@ test.describe('Live Automation Page - Extended', () => {
   test('should toggle aria-expanded on header when expanding/collapsing', async () => {
     // We only need the first card for this behavior
     const index = 0;
+    
+    // Helper function to wait for aria-expanded to reach expected state with retry logic
+    const waitForAriaExpandedState = async (expectedState, operation, maxRetries = 8, baseTimeout = 500) => {
+      let actualState = null;
+      let retryCount = 0;
+      
+      while (retryCount < maxRetries) {
+        // Use exponential backoff for retries to handle varying network conditions
+        const timeout = baseTimeout * Math.pow(1.5, retryCount);
+        await liveAutomationPage.page.waitForTimeout(Math.min(timeout, 3000));
+        
+        actualState = await liveAutomationPage.getHeaderAriaExpanded(index);
+        console.log(`Aria-expanded after ${operation} (attempt ${retryCount + 1}):`, actualState);
+        
+        if (actualState === expectedState) {
+          console.log(`✓ ${operation} completed successfully on attempt ${retryCount + 1}`);
+          return actualState; // Success - found expected value
+        }
+        
+        retryCount++;
+        if (retryCount < maxRetries) {
+          console.log(`Retrying ${operation} check (${retryCount}/${maxRetries})... Expected: ${expectedState}, Got: ${actualState}`);
+        }
+      }
+      
+      console.warn(`${operation} failed after ${maxRetries} attempts. Final state: ${actualState}`);
+      return actualState;
+    };
 
-    // Expand
+    // Expand the test result
+    console.log('=== Expanding test result ===');
     await liveAutomationPage.expandTestResult(index);
-    const expanded = await liveAutomationPage.getHeaderAriaExpanded(index);
-    console.log('Aria-expanded after expand:', expanded);
-    if (expanded !== null) {
-      expect(expanded).toBe('true');
+    
+    // Wait for expand to complete with retry logic
+    const expandedState = await waitForAriaExpandedState('true', 'expand');
+    
+    if (expandedState !== null) {
+      expect(expandedState).toBe('true');
     } else {
+      // Fallback to visual state check
       const visuallyExpanded = await liveAutomationPage.isTestResultExpanded(index);
-      console.warn('aria-expanded missing, using visual state:', visuallyExpanded);
+      console.warn('aria-expanded missing after expand, using visual state:', visuallyExpanded);
       if (!visuallyExpanded) {
-        console.warn('Test result not visually expanded. Skipping assertion.');
-        return;
+        console.warn('Test result not visually expanded. Test failed.');
+        expect(visuallyExpanded).toBeTruthy(); // This will fail and show the issue clearly
       }
       expect(visuallyExpanded).toBeTruthy();
     }
 
-    // Collapse
+    // Small pause to ensure expand operation is fully complete before collapse
+    await liveAutomationPage.page.waitForTimeout(200);
+
+    // Collapse the test result  
+    console.log('=== Collapsing test result ===');
     await liveAutomationPage.collapseTestResult(index);
     
-    // Wait for collapse operation to complete with retry logic
-    let collapsed = null;
-    let retryCount = 0;
-    const maxRetries = 5;
+    // Wait for collapse to complete with retry logic
+    const collapsedState = await waitForAriaExpandedState('false', 'collapse');
     
-    while (retryCount < maxRetries) {
-      await liveAutomationPage.page.waitForTimeout(1000); // Increased wait time for GHA
-      collapsed = await liveAutomationPage.getHeaderAriaExpanded(index);
-      console.log(`Aria-expanded after collapse (attempt ${retryCount + 1}):`, collapsed);
-      
-      if (collapsed === 'false') {
-        break; // Success - found expected value
-      }
-      
-      retryCount++;
-      if (retryCount < maxRetries) {
-        console.log(`Retrying collapse check (${retryCount}/${maxRetries})...`);
-      }
-    }
-    
-    if (collapsed !== null) {
-      expect(collapsed).toBe('false');
+    if (collapsedState !== null) {
+      expect(collapsedState).toBe('false');
     } else {
+      // Fallback to visual state check
       const visuallyCollapsed = await liveAutomationPage.isTestResultExpanded(index);
-      console.warn('aria-expanded missing after all retries, using visual state:', visuallyCollapsed);
+      console.warn('aria-expanded missing after collapse, using visual state. Expanded:', visuallyCollapsed);
       if (visuallyCollapsed) {
-        console.warn('Test result still visually expanded after all retries. Skipping assertion.');
-        return;
+        console.warn('Test result still visually expanded after collapse. Test failed.');
+        expect(visuallyCollapsed).toBeFalsy(); // This will fail and show the issue clearly
       }
       expect(visuallyCollapsed).toBeFalsy();
     }
