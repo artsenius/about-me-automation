@@ -61,27 +61,41 @@ class LiveAutomationPage extends BasePage {
         const header = headers.nth(index);
         const card = cards.nth(index);
 
-        await header.click();
-        await this.waitForTimeout(300);
-
-        // Prefer checking aria-expanded on the header for robustness
-        try {
-            await header.getAttribute('aria-expanded');
-            await this.page.locator(`${this.selectors.testRunHeader}[aria-expanded="true"]`).nth(index).waitFor();
-        } catch (e) {
-            // Fallback to checking visible content region within the card
-        }
-
-        const explicitContent = card.locator(this.selectors.testRunContent);
-        const hasExplicitContent = await explicitContent.count();
-        if (hasExplicitContent > 0) {
-            await explicitContent.first().waitFor({ state: 'visible' });
+        // Ensure header is visible and clickable before clicking
+        await header.waitFor({ state: 'visible' });
+        await header.scrollIntoViewIfNeeded();
+        
+        // Check if already expanded to avoid unnecessary clicks
+        const currentState = await header.getAttribute('aria-expanded');
+        if (currentState === 'true') {
+            console.log('Test result already expanded, skipping click');
             return;
         }
 
-        // Fallbacks: region or tabpanel used by the app
-        const region = card.locator('[role="region"], [role="tabpanel"]').first();
-        await region.waitFor({ state: 'visible' });
+        await header.click();
+        
+        // Wait for the expand animation/transition to complete
+        // Use Promise.race to wait for either aria-expanded or visual content
+        try {
+            await Promise.race([
+                // Option 1: Wait for aria-expanded to become true
+                this.page.locator(`${this.selectors.testRunHeader}[aria-expanded="true"]`).nth(index).waitFor({ timeout: 5000 }),
+                // Option 2: Wait for content to become visible
+                (async () => {
+                    const explicitContent = card.locator(this.selectors.testRunContent);
+                    const hasExplicitContent = await explicitContent.count();
+                    if (hasExplicitContent > 0) {
+                        await explicitContent.first().waitFor({ state: 'visible', timeout: 5000 });
+                    } else {
+                        // Fallback: wait for region or tabpanel to become visible
+                        const region = card.locator('[role="region"], [role="tabpanel"]').first();
+                        await region.waitFor({ state: 'visible', timeout: 5000 });
+                    }
+                })()
+            ]);
+        } catch (e) {
+            console.warn('Expand operation may not have completed fully:', e.message);
+        }
     }
 
     async collapseTestResult(index) {
@@ -90,23 +104,40 @@ class LiveAutomationPage extends BasePage {
         const header = headers.nth(index);
         const card = cards.nth(index);
 
-        await header.click();
-        await this.waitForTimeout(300);
-
-        const explicitContent = card.locator(this.selectors.testRunContent);
-        const hasExplicitContent = await explicitContent.count();
-        if (hasExplicitContent > 0) {
-            await explicitContent.first().waitFor({ state: 'hidden' });
+        // Ensure header is visible and clickable before clicking
+        await header.waitFor({ state: 'visible' });
+        await header.scrollIntoViewIfNeeded();
+        
+        // Check if already collapsed to avoid unnecessary clicks
+        const currentState = await header.getAttribute('aria-expanded');
+        if (currentState === 'false') {
+            console.log('Test result already collapsed, skipping click');
             return;
         }
 
-        // Fallback: wait for aria-expanded to become false
+        await header.click();
+        
+        // Wait for the collapse animation/transition to complete
+        // Use Promise.race to wait for either aria-expanded or visual content to hide
         try {
-            await this.page.locator(`${this.selectors.testRunHeader}[aria-expanded="false"]`).nth(index).waitFor();
+            await Promise.race([
+                // Option 1: Wait for aria-expanded to become false
+                this.page.locator(`${this.selectors.testRunHeader}[aria-expanded="false"]`).nth(index).waitFor({ timeout: 5000 }),
+                // Option 2: Wait for content to become hidden
+                (async () => {
+                    const explicitContent = card.locator(this.selectors.testRunContent);
+                    const hasExplicitContent = await explicitContent.count();
+                    if (hasExplicitContent > 0) {
+                        await explicitContent.first().waitFor({ state: 'hidden', timeout: 5000 });
+                    } else {
+                        // Fallback: wait for region or tabpanel to become hidden
+                        const region = card.locator('[role="region"], [role="tabpanel"]').first();
+                        await region.waitFor({ state: 'hidden', timeout: 5000 });
+                    }
+                })()
+            ]);
         } catch (e) {
-            // If aria-expanded not present, ensure region/tabpanel is hidden
-            const region = card.locator('[role="region"], [role="tabpanel"]').first();
-            await region.waitFor({ state: 'hidden' });
+            console.warn('Collapse operation may not have completed fully:', e.message);
         }
     }
 
