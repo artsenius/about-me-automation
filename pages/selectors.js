@@ -46,8 +46,7 @@ module.exports = {
         currentRoleTitle: '[data-testid="current-role-title"]',
         currentRoleCompany: '[data-testid="role-company"]',
         currentRoleDuration: '[data-testid="role-duration"]',
-        allerganLink: 'a[href*="allerganaesthetics.com"]',
-        abbvieLink: 'a[href*="abbvie.com"]',
+        companyLink: 'a[href*="healthcasts.com"]',
 
         // Technical Skills Section
         skillsSection: '[data-testid="skills-section"]',

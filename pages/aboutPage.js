@@ -86,10 +86,10 @@ class AboutPage extends BasePage {
         return await this.getText(this.selectors.currentRoleDuration);
     }
 
-    async getAllerganLink() {
+    async getCompanyLink() {
         // Scroll to current role section to ensure links are visible
         await this.page.locator(this.selectors.currentRoleSection).scrollIntoViewIfNeeded();
-        const links = await this.page.locator('a[href*="allerganaesthetics.com"]').all();
+        const links = await this.page.locator('a[href*="healthcasts.com"]').all();
         if (links.length > 0) {
             return await links[0].getAttribute('href');
         }

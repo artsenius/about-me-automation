@@ -24,9 +24,7 @@ test.describe('About Page', () => {
     test('should display profile position with correct text', async () => {
         // Verify profile position text
         const position = await aboutPage.getProfilePosition();
-        expect(position).toContain('Lead QA Engineer');
-        expect(position).toContain('SDET');
-        expect(position).toContain('AI Enthusiast');
+        expect(position).toContain('Lead SDET');
     });
 
     test('should have hoverable profile image', async () => {
@@ -52,9 +50,9 @@ test.describe('About Page', () => {
         // Verify summary section
         expect(await aboutPage.isSummaryVisible()).toBeTruthy();
         const summary = await aboutPage.getSummaryText();
-        expect(summary).toContain('Lead QA Engineer');
-        expect(summary).toContain('AI testing');
-        expect(summary).toContain('automation');
+        expect(summary).toContain('Lead SDET');
+        expect(summary).toContain('AI-driven testing');
+        expect(summary).toContain('Expert');
 
         // Verify current role section
         expect(await aboutPage.isCurrentRoleSectionVisible()).toBeTruthy();
@@ -63,11 +61,8 @@ test.describe('About Page', () => {
 
     test('should have working company links', async () => {
         // Verify company links
-        const allerganUrl = await aboutPage.getAllerganLink();
-        expect(allerganUrl).toContain('allerganaesthetics.com');
-
-        const abbvieUrl = await aboutPage.getAbbvieLink();
-        expect(abbvieUrl).toContain('abbvie.com');
+        const allerganUrl = await aboutPage.getCompanyLink();
+        expect(allerganUrl).toContain('healthcasts.com');
     });
 
     test('should display technical skills section with 30 skills', async () => {
@@ -319,7 +314,7 @@ test.describe('About Page', () => {
         const skillsText = skills.join(' ').toLowerCase();
         expect(skillsText).toContain('javascript');
         expect(skillsText).toContain('playwright');
-        expect(skillsText).toContain('testing');
+        expect(skillsText).toContain('claude');
         
         // Verify no empty skills
         for (const skill of skills) {

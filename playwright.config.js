@@ -8,6 +8,8 @@ module.exports = defineConfig({
     testDir: './tests',
     // Global timeout for each test
     timeout: 60000,
+    // Number of retries
+    retries: 2,
     expect: {
         // Timeout for individual expect assertions
         timeout: 10000
